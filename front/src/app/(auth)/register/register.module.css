@@ -1,0 +1,81 @@
+.contenedorRegister {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #7076e9, #1305ac);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+/* Contenedor */
+.registerForm {
+  margin-top: 40px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border-radius: 20px;
+  padding: 2.5rem;
+  width: 600px;            /* <- más ancho fijo */
+  max-width: 90vw;         /* <- no se pasa en pantallas chicas */
+  text-align: center;
+  animation: fadeIn 0.6s ease-in-out;
+  margin-bottom: 40px
+}
+
+/* Título */
+.registerForm h1 {
+  font-size: 2rem;
+  color: #06065f;
+  margin-bottom: 0.5rem;
+  font-weight: 800;
+}
+
+/* Subtítulo */
+.registerForm p {
+  color: #374151;
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Labels de los inputs */
+.registerForm label {
+  display: block;
+  text-align: left;
+  margin: 0.6rem 0 0.3rem 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #09065f;
+}
+
+/* Mensaje de notificación */
+.mensaje {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #333;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  max-width: 350px;
+  font-weight: 500;
+  border-left: 4px solid #667eea;
+}
+
+
+
+.linkRegister{
+  color: #05086e;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.linkRegister:hover { text-decoration: underline; }
+
+/* Animación */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

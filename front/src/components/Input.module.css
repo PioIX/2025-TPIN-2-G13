@@ -1,0 +1,118 @@
+.inputLogin {
+    width: 100%;
+    padding: 0.9rem 1rem;
+    margin: 0.6rem 0;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.inputLogin:focus {
+    outline: none;
+    border-color: #1021b9;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+}
+
+
+
+/* registerr */
+
+.inputRegister {
+    width: 100%;
+    padding: 0.9rem 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    font-size: 1rem;
+    background: #f9fafb;
+    color: #111827;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.inputRegister::placeholder {
+    color: #6b7280;
+}
+
+.inputRegister::focus {
+    outline: none;
+    border-color: #1016b9;
+    box-shadow: 0 0 0 3px rgba(16,185,129,0.3);
+    background: #ffffff;
+}
+
+
+/* chat usos inputs*/
+
+.inputBuscarContacto {
+    width: 100%;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 14px;
+    background: #abbafd;
+    color: #000000;
+    border: 2px solid transparent;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.inputBuscarContacto:focus {
+    border-color: #000000;
+    background: #ffffff;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.25);
+}
+
+.inputBuscarContacto:hover {
+    border-color: grey;
+}
+
+.inputEscribirMensaje {
+    flex: auto;
+    padding: 16px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    word-wrap: break-word; 
+    overflow-wrap: break-word; 
+    white-space: pre-wrap;
+}
+
+
+
+
+
+
+.inputNuevoChat {
+    width: 100%;
+    padding: 16px 0;
+    border: none;
+    border-bottom: 2px solid #e0e0e0;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    background: transparent;
+    color: #000000;
+    outline: none;
+    font-family: inherit;
+}
+
+.inputNuevoChat::placeholder {
+    color: #2910c8;
+    font-size: 15px;
+    transition: all 0.3s ease;
+}
+
+.inputNuevoChat:focus {
+    border-bottom-color: #2500c8;
+    padding-bottom: 15px;
+    border-bottom-width: 3px;
+}
+
+.inputNuevoChat:focus::placeholder {
+    color: #c0c0c0;
+    transform: translateY(-2px);
+}
+
+.inputNuevoChat:not(:placeholder-shown) {
+    border-bottom-color: #333;
+}

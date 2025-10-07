@@ -1,0 +1,72 @@
+.contactList {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  flex: 1;
+
+  
+}
+
+/* Cada contacto en la lista */
+.contactItem {
+  display: flex;
+  align-items: center;
+  padding: 10px 14px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(50px);
+  animation: slideIn 0.4s ease-out forwards;
+}
+
+.contactItem:hover {
+  background-color: #7a7373;
+}
+
+.selected {
+  background-color: #007bff; /* azul tipo "seleccionado" */
+  color: white;
+  transform: scale(1.02); /* un mini zoom */
+  border-radius: 8px;
+}
+
+/* Foto de perfil o grupo */
+.contactImg {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 12px;
+  border: 1px solid #ddd;
+}
+
+/* Nombre del contacto */
+.contactName {
+  font-size: 20px;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+
+.contactImgHeader {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 12px;
+    border: 1px solid #000000;
+}
+
+.contactInfo {
+    font-size: 20px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-weight: 500;
+    color: #000000;
+}
+
+@keyframes slideIn {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

@@ -1,0 +1,90 @@
+/* Fondo con gradiente moderno */
+.contenedorLogin {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #7076e9, #1305ac);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+/* Contenedor principal */
+.contenedorFormLogin {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border-radius: 20px;
+  padding: 2rem;
+  width: 380px;
+  text-align: center;
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+/* Título */
+.contenedorFormLogin h1 {
+  font-size: 2rem;
+  color: #0a1090;
+  margin-bottom: 1.8rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+
+
+/* Texto de registro */
+.contenedorFormLogin h3 {
+  margin-top: 1.5rem;
+  font-size: 1rem;
+  color: #374151;
+  margin-bottom: 10px;
+}
+
+.contenedorFormLogin a {
+  color: #052967;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.contenedorFormLogin a:hover {
+  color: #060478;
+  text-decoration: underline;
+}
+
+.linkLogin{
+  color: #060dce;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.linkLogin:hover { text-decoration: underline; }
+
+.mensaje {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #333;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  max-width: 350px;
+  font-weight: 500;
+  border-left: 4px solid #667eea;
+}
+
+
+
+/* Animación */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

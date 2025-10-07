@@ -1,0 +1,40 @@
+.hour{
+    display: block;
+    text-align: right;   /* alinea a la derecha */
+    opacity: 0.7;
+    font-size: 0.7rem;
+    margin-top: 2px;     /* espacio con el texto */
+}
+
+.message {
+    max-width: 60%;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 14px;       
+    word-wrap: break-word; 
+    overflow-wrap: break-word; 
+    white-space: pre-wrap;
+    opacity: 0;
+    transform: translateY(10px);
+    animation: slideInMessage 0.3s ease-out forwards;
+}
+
+.messageReceived {
+    background-color: #f0f0f0;
+    align-self: flex-start;
+    color: rgb(42, 42, 42);
+}
+
+.messageSent {
+    background-color: #007bff;
+    color: white;
+    align-self: flex-end;
+}
+
+
+@keyframes slideInMessage {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
