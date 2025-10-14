@@ -27,7 +27,7 @@ export default function Login() {
 
     
     useEffect(() => {
-        fetch("http://localhost:4006/usuarios")
+        fetch("http://localhost:4006/users")
             .then(response => response.json())
             .then(result => {
                 console.log(result)

@@ -1,18 +1,34 @@
+/* Botón principal de la Home - Estilo Épico */
 .buttonhome {
-    padding: 12px 25px;
-    font-size: 16px;
-    background: #2563eb;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background 0.3s ease, transform 0.2s ease;
+  /* Usamos las variables de color que definimos en .homecontainer */
+  background: var(--color-primary-red);
+  color: var(--color-white);
+  
+  /* Hacemos el botón un poco más grande e imponente */
+  padding: 15px 35px;
+  font-size: 1.2rem; /* 18px o 20px también funciona bien */
+  font-weight: 700; /* Bold */
+  letter-spacing: 1px; /* Espaciado para un look más premium */
+
+  /* Detalles y efectos */
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* Sombra para darle profundidad */
+  transition: all 0.3s ease-out; /* Transición suave para todos los efectos */
 }
 
+/* Efecto al pasar el mouse por encima */
 .buttonhome:hover {
-    background: #1d4ed8;
-    transform: scale(1.05);
+  background: #C0392B; /* Un rojo un poco más oscuro y saturado */
+  transform: translateY(-3px); /* Lo levantamos un poco para un efecto 3D */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45); /* La sombra se hace más grande y oscura */
+}
+
+/* Efecto al hacer clic */
+.buttonhome:active {
+  transform: translateY(-1px); /* Se hunde ligeramente al presionarlo */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
 }
 
 /* Botón Login*/

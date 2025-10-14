@@ -57,10 +57,10 @@ app.get('/', function (req, res) {
 
 
 
-app.get('/usuarios', async function (req, res) {
+app.get('/users', async function (req, res) {
     try {
         const respuesta = await realizarQuery(`
-            SELECT * FROM UsuariosChat
+            SELECT * FROM Users
         `)
         res.send(respuesta)
     } catch (error) {

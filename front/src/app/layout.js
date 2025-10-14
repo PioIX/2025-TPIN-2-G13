@@ -13,10 +13,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Sin nombre aun",
-  description: "CallateBauti",
+  title: "KabeGol",
+  description: "",
   icons: {
-    icon: "https://img.freepik.com/vector-gratis/dibujado-mano-realista-vete-mierda-simbolo_23-2148684365.jpg?semt=ais_hybrid&w=740&q=80"
+    icon: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSRVW6PdD-b8MJUWJlTe3fmc9ucfZTTdOKNDA&s"
   }
 };
 

@@ -16,6 +16,8 @@
   font-family: var(--font-geist-sans);
 }
 
+
+
 @media (prefers-color-scheme: dark) {
   .page {
     --gray-rgb: 255, 255, 255;
@@ -166,77 +168,174 @@ a.secondary {
   }
 }
 
-/* Contenedor principal */
+/* Contenedor principal - Fondo más dramático */
 .homecontainer {
+  /* Variables de Color (definidas aquí para que funcionen) */
+  --color-primary-red: #E74C3C;
+  --color-secondary-blue: #3498DB;
+  --color-dark-gray: #2C3E50;
+  --color-medium-gray: #7F8C8D;
+  --color-light-gray: #ECF0F1;
+  --color-white: #FFFFFF;
+  --color-black: #000000;
+  --gradient-bg-dark: linear-gradient(135deg, var(--color-dark-gray) 0%, var(--color-black) 100%);
+
+  --color-primary-red-rgb: 231, 76, 60;
+  --color-secondary-blue-rgb: 52, 152, 219;
+
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: space-between; /* Espacio entre header, contenido y footer */
   align-items: center;
   min-height: 100vh;
   text-align: center;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
-  color: #333;  
+  font-family: 'Montserrat', sans-serif; /* Fuente más moderna y deportiva */
+  background: var(--gradient-bg-dark); /* Fondo oscuro con degradado */
+  color: var(--color-light-gray); /* Texto claro sobre fondo oscuro */
   padding: 20px;
   box-sizing: border-box;
+  overflow: hidden; /* Para que no se vea la animación inicial fuera de la pantalla */
+  position: relative; /* Para posibles elementos absolutos */
 }
 
-/* Header */
+/* Efecto de partículas o destellos de fondo (opcional, si quieres añadir una capa de detalle) */
+.homecontainer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(circle at center, rgba(var(--color-secondary-blue), 0.1) 0%, transparent 70%); /* Un brillo sutil */
+  background-size: 150% 150%;
+  animation: bgPulse 10s infinite alternate ease-in-out; /* Animación de fondo sutil */
+  z-index: 0; /* Asegurarse de que esté detrás del contenido */
+}
+
+@keyframes bgPulse {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 100% 100%; }
+}
+
+
+/* Header - Más prominente y contrastante */
 .header {
   width: 100%;
-  background: #1e293b; /* azul oscuro */
-  color: white;
-  padding: 10px 20px;
-  font-size: 14px;
+  background: var(--color-black); /* Fondo negro puro para contraste */
+  color: var(--color-light-gray);
+  padding: 15px 20px; /* Un poco más de padding */
+  font-size: 0.9rem; /* Un poco más pequeño */
   text-align: center;
-  position: sticky;
+  position: sticky; /* Sticky para que se quede arriba */
   top: 0;
   z-index: 1000;
-  border-radius: 0 0 10px 10px;
+  border-bottom: 2px solid var(--color-primary-red); /* Línea roja de acento */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4); /* Sombra para darle profundidad */
+}
+.headerhomep {
+  font-weight: 300; /* Texto un poco más ligero */
+  letter-spacing: 0.5px; /* Más espaciado entre letras */
 }
 
-/* Títulos */
+
+/* Títulos - Más grandes, con mejor tipografía y efecto de brillo */
 .titlehome {
-  margin-top: 40px;
-  font-size: 3rem;
-  color: #1e293b;
+  margin-top: 60px; /* Más espacio arriba */
+  font-size: 4.5rem; /* ¡Mucho más grande! */
+  color: var(--color-white); /* Blanco para que resalte */
+  font-weight: 900; /* Extra bold */
+  letter-spacing: 3px; /* Espaciado para un look más moderno */
+  text-shadow: 0 0 10px rgba(var(--color-secondary-blue), 0.7), 0 0 20px rgba(var(--color-primary-red), 0.5); /* Efecto de brillo azul/rojo */
+  position: relative;
+  z-index: 1; /* Asegurar que esté encima del fondo animado */
 }
 
 .subtitlehome {
-  font-size: 1.5rem;
-  font-weight: normal;
-  margin-bottom: 30px;
-  color: #475569;
-}
-
-/* Sección de entrar */
-.entrarhome {
-  background: white;
-  padding: 20px 40px;
-  border-radius: 15px;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
-  margin: 20px 0;
-  transition: transform 0.3s ease;
-}
-
-.entrarhome:hover {
-  transform: translateY(-5px);
-}
-
-.entrarhome p {
-  margin-bottom: 15px;
-  font-size: 18px;
+  font-size: 1.8rem; /* Más grande también */
   font-weight: 500;
-  color: #334155;
+  margin-bottom: 40px;
+  color: var(--color-light-gray); /* Gris claro */
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5); /* Sombra para el subtítulo */
+  position: relative;
+  z-index: 1;
 }
 
-/* Footer */
+/* Caja principal con un nuevo diseño más limpio */
+.entrarhome {
+  background: var(--color-dark-gray);
+  padding: 30px 60px;
+  border-radius: 20px;
+  margin: 30px 0;
+  z-index: 1;
+  position: relative; /* Clave para el efecto de brillo */
+  border: 1px solid rgba(127, 140, 141, 0.3); /* Borde gris sutil y semitransparente */
+
+  /* El "aura" en estado normal: una sombra muy sutil */
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+
+  /* Transición suave para todos los cambios */
+  transition: all 0.4s ease-out;
+}
+
+/* El efecto ÉPICO al pasar el mouse */
+.entrarhome:hover {
+  transform: translateY(-8px) scale(1.03); /* Se levanta un poco más */
+  border-color: rgba(var(--color-secondary-blue-rgb), 0.5); /* El borde se ilumina con el azul */
+
+  /* Aquí está la magia: el aura se enciende con los colores de la marca */
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), /* Sombra base más oscura */
+              0 0 20px rgba(var(--color-secondary-blue-rgb), 0.4), /* Aura azul */
+              0 0 30px rgba(var(--color-primary-red-rgb), 0.3); /* Aura roja más difusa */
+}
+
+/* El contenido dentro de la caja también necesita estar por encima del fondo */
+.entrarhome > * {
+  position: relative;
+  z-index: 2;
+}
+
+
+/* Ajustes menores para el resto (opcional, pero recomendado) */
+.entrarhome p {
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--color-white);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+/* Footer - Más discreto pero con contraste */
 .footerhome {
   margin-top: auto;
-  font-size: 14px;
-  color: #64748b;
+  font-size: 0.9rem;
+  color: var(--color-medium-gray); /* Gris medio */
   padding: 15px 0;
+  position: relative;
+  z-index: 1;
 }
+
+/* --- FIN DE NUEVOS ESTILOS ÉPICOS --- */
+
+/* Mantenemos las animaciones que ya teníamos, pero aseguramos que estén por debajo de los nuevos estilos */
+@keyframes fadeInSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-slide-up {
+  opacity: 0;
+  animation: fadeInSlideUp 0.8s ease-out forwards; /* Aumenté la duración a 0.8s */
+}
+
+.delay-1 { animation-delay: 0.3s; } /* Ajusté los delays */
+.delay-2 { animation-delay: 0.6s; }
+.delay-3 { animation-delay: 0.9s; }
 
 /* Botón */
 
