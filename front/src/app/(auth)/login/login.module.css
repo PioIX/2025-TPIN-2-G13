@@ -2,7 +2,9 @@
 .contenedorLogin {
   margin: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #e7e7e7, #ffffff);
+  background: url(/backgrounds/fondoInicio.png);
+  background-repeat: no-repeat;
+  background-size: cover;
   display: flex;
   align-items: center;
   justify-content: center;
