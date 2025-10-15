@@ -1,6 +1,6 @@
 "use client"
 
-import styles from "@/app/(auth)/loginpage/login.module.css"
+import styles from "@/app/(auth)/login/login.module.css"
 import Button from "@/components/Button";
 import Input from "@/components/Input";
 import Link from "next/link";
