@@ -100,6 +100,17 @@ app.post('/findUser', async function (req, res) {
     }
 })
 
+app.post('/findUserById', async function (req, res) {
+    try {
+        const respuesta = await realizarQuery(`
+            SELECT * FROM Users WHERE id_user = '${req.body.id_user}'
+        `)
+        res.send(respuesta)
+    } catch (error) {
+        console.log(error)
+    }
+})
+
 app.post('/findUserId', async function (req, res) {
     try {
         const respuesta = await realizarQuery(`
