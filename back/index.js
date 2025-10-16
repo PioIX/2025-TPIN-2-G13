@@ -71,14 +71,14 @@ app.get('/users', async function (req, res) {
 app.post('/register', async function (req, res) {
     console.log(req.body)
     try {
-        if (req.body.foto_perfil == null) {
-            req.body.foto_perfil = null
+        if (req.body.image == null) {
+            req.body.image = null
         } else {
-            req.body.foto_perfil = `'${req.body.foto_perfil}'`
+            req.body.image = `'${req.body.image}'`
         }
         const respuesta = await realizarQuery(`
-            INSERT INTO UsuariosChat (nombre, apellido, mail, contraseña, desc_personal, foto_perfil, en_linea)    
-            VALUES ('${req.body.nombre}', '${req.body.apellido}', '${req.body.mail}', '${req.body.contraseña}', '${req.body.desc_personal}', ${req.body.foto_perfil}, ${req.body.en_linea})
+            INSERT INTO Users (username, password, image)    
+            VALUES ('${req.body.username}', '${req.body.password}', ${req.body.image})
         `)
         res.send({res: true, message: "Usuario Creado Correctamente"})
     } catch (error) {
@@ -89,7 +89,7 @@ app.post('/register', async function (req, res) {
 app.post('/findUser', async function (req, res) {
     try {
         const respuesta = await realizarQuery(`
-            SELECT * FROM UsuariosChat WHERE mail = '${req.body.mail}'
+            SELECT * FROM Users WHERE username = '${req.body.username}'
         `)
         if (respuesta.length > 0)
             res.send({ vector: respuesta, existe: true })
@@ -103,7 +103,7 @@ app.post('/findUser', async function (req, res) {
 app.post('/findUserId', async function (req, res) {
     try {
         const respuesta = await realizarQuery(`
-            SELECT id_usuario FROM UsuariosChat WHERE mail = '${req.body.mail}'
+            SELECT id_user FROM Users WHERE username = '${req.body.username}'
         `)
         res.send(respuesta)
     } catch (error) {
@@ -128,7 +128,7 @@ app.post('/bringContacts', async function (req, res) {
     try {
 
         const respuesta = await realizarQuery(`
-            Select Chats.foto, nom_grupo, grupo, UsuariosChat.foto_perfil, UsuariosPorChats.id_chat, UsuariosChat.nombre
+            Select Chats.foto, nom_grupo, grupo, UsuariosChat.image, UsuariosPorChats.id_chat, UsuariosChat.nombre
             FROM Chats
             INNER JOIN UsuariosPorChats ON Chats.id_chat = UsuariosPorChats.id_chat
             INNER JOIN UsuariosChat ON UsuariosPorChats.id_usuario = UsuariosChat.id_usuario
@@ -138,8 +138,8 @@ app.post('/bringContacts', async function (req, res) {
         `)
 
         for (let i=0; i<respuesta.length; i++) {
-            if (respuesta[i].foto_perfil == null || respuesta[i].foto_perfil == "") {
-                respuesta[i].foto_perfil = "https://cdn-icons-png.flaticon.com/512/847/847969.png"
+            if (respuesta[i].image == null || respuesta[i].image == "") {
+                respuesta[i].image = "https://cdn-icons-png.flaticon.com/512/847/847969.png"
             }
             if (respuesta[i].foto == null || respuesta[i].foto == "") {
                 respuesta[i].foto = "https://cdn-icons-png.flaticon.com/512/847/847969.png"

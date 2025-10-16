@@ -10,11 +10,8 @@ import { useEffect, useState } from "react";
 export default function Register() {
 
     const [nombre, SetNombre] = useState("")
-    const [apellido, SetApellido] = useState("")
     const [contraseña, SetContraseña] = useState("")
     const [confirmContraseña, setConfirmContraseña] = useState("")
-    const [description, SetDescription] = useState("")
-    const [correo, SetCorreo] = useState("")
     const [fotoPerfil, SetFotoPerfil] = useState(null)
     const [usuario, setUsuario] = useState([])
 
@@ -44,20 +41,11 @@ export default function Register() {
     function saveName(event) {
         SetNombre(event.target.value)
     }
-    function saveLastName(event) {
-        SetApellido(event.target.value)
-    }
     function savePassowrd(event) {
         SetContraseña(event.target.value)
     }
     function savePassowrdSecure(event) {
         setConfirmContraseña(event.target.value)
-    }
-    function saveDescription(event) {
-        SetDescription(event.target.value)
-    }
-    function saveMail(event) {
-        SetCorreo(event.target.value)
     }
     function saveImage(event) {
         SetFotoPerfil(event.target.value)
@@ -65,7 +53,7 @@ export default function Register() {
 
     function UserExists() {
 
-            if (!nombre || !apellido || !correo || !contraseña || !description) {
+            if (!nombre || !contraseña) {
                 showModal("Error", "Complete todos los campos por favor")
                 return
             }
@@ -76,7 +64,7 @@ export default function Register() {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    mail: correo,
+                    username: nombre
                 })
             })
             .then(response => response.json())
@@ -88,13 +76,9 @@ export default function Register() {
     function SignUp() { 
 
         const userData = {
-            nombre: nombre,
-            apellido: apellido,
-            mail: correo,
-            contraseña: contraseña,
-            desc_personal: description,
-            foto_perfil: fotoPerfil,
-            en_linea: false
+            username: nombre,
+            password: contraseña,
+            image: fotoPerfil,
         }
 
         if (contraseña === confirmContraseña) {
@@ -112,13 +96,13 @@ export default function Register() {
                 fetch('http://localhost:4006/findUserId', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ mail: correo })
+                    body: JSON.stringify({ username: nombre })
                     })
                         .then(response => response.json())
                         .then(data => {
-                            sessionStorage.setItem("userId", data[0].id_usuario); // guardar userId 
-                            console.log("userId guardado en sessionStorage:", data[0].id_usuario);
-                            router.replace("./../chat")
+                            sessionStorage.setItem("userId", data[0].id_user); // guardar userId 
+                            console.log("userId guardado en sessionStorage:", data[0].id_user);
+                            router.replace("/Kabegol/Home") // redirigir a Home
                         })
         })
         } else {
@@ -133,17 +117,13 @@ export default function Register() {
                 <br></br>
                 <p>Complete los siguientes datos para el registro</p>
 
-                <Input text="Nombre" placeholder="Escriba su nombre" page="register" type="text" onChange={saveName} required={true}/>
-                <Input text="Apellido" placeholder="Escriba su Apellido" page="register" type="text" onChange={saveLastName} required={true}/>
-                <Input text="Contraseña" placeholder="Escriba su nombre" page="register" type="password" onChange={savePassowrd} required={true}/>
+                <Input text="Username" placeholder="Escriba su nombre de usuario" page="register" type="text" onChange={saveName} required={true}/>
+                <Input text="Contraseña" placeholder="Escriba su contraseña" page="register" type="password" onChange={savePassowrd} required={true}/>
                 <Input text="Confirmar Contraseña" placeholder="Escriba de vuelta su contraseña" page="register" type="password" onChange={savePassowrdSecure} required={true}/>
-                <Input text="Descripcion Personal" placeholder="Escriba la Descripcion Personal" page="register" type="text" onChange={saveDescription} required={true}/>
-                <Input text="Correo Electronico" placeholder="Escriba su email" page="register" type="email" onChange={saveMail} required={true}/>
-
                 <Input text="Foto de perfil (enlace público)" placeholder="Agregue su foto de perfil" page="register" type="text" onChange={saveImage} required={false}/>
 
                 <Button onClick={UserExists} text="Sign Up" page="register"></Button>
-                <Link href={"./login"} className={styles.linkRegister}>¿Ya tenes cuenta? Login </Link>
+                <Link href={"./login"} className={styles.linkRegister}>¿Ya tenes cuenta? Login</Link>
             </div>
 
             {mostrarMensaje && (
