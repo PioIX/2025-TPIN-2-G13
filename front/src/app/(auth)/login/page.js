@@ -45,20 +45,20 @@ export default function Login() {
             }
 
             for (let i = 0; i < usuarios.length; i++) {
-                if (usuarios[i].mail == user) {
-                    if (usuarios[i].contraseña == password) {
+                if (usuarios[i].username == user) {
+                    if (usuarios[i].password == password) {
                         sessionStorage.setItem("isLoggedIn", "true"); // guardar login
-                        showModal("Has iniciado Sesión", "Enseguida estarás en la app")
+                        showModal("Has iniciado Sesión", "Enseguida estarás en KabeGol")
                         fetch('http://localhost:4006/findUserId', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ mail: user })
+                            body: JSON.stringify({ username: user })
                         })
                             .then(response => response.json())
                             .then(data => {
-                                sessionStorage.setItem("userId", data[0].id_usuario); // guardar userId 
-                                console.log("userId guardado en sessionStorage:", data[0].id_usuario);
-                                router.replace("./../chat")
+                                sessionStorage.setItem("userId", data[0].id_user); // guardar userId 
+                                console.log("userId guardado en sessionStorage:", data[0].id_user);
+                                router.replace("/Kabegol/Home") // redirigir a Home
                             })
                     } else {
                         showModal("Error", "Contraseña o Usuario Incorrecto")
@@ -88,8 +88,8 @@ export default function Login() {
         <div className={styles.contenedorLogin}>
             <div className={styles.contenedorFormLogin}>
                 <h1>Login</h1>
-                <Input placeholder="Escriba su email" id="email" page="login" type="email" onChange={saveUser} name="mail" text="Correo electrónico" />
-                <Input placeholder="Escriba su contraseña" id="password" page="login" type="password" onChange={savePassword} name="contraseña" text="Contraseña" onKeyDown={handleKeyDown}/>
+                <Input placeholder="Escriba su nombre de usuario" page="login" type="text" onChange={saveUser} name="Nombre" text="Nickname" />
+                <Input placeholder="Escriba su contraseña" page="login" type="password" onChange={savePassword} name="contraseña" text="Contraseña" onKeyDown={handleKeyDown}/>
                 <Button text="Sign In" onClick={SignIn} page="login"></Button>
                 <h3>¿Es la primera vez que ingresas?</h3>
                 <Link href="./register" className={styles.linkLogin}>Registrarse</Link>
