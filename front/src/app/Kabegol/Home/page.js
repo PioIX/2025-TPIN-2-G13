@@ -2,12 +2,15 @@
 
 import { useEffect, useState } from "react";
 import Popup from "reactjs-popup";
-import styles from "./Home.module.css";
+import styles from "./home.module.css";
+import Button from "@/components/Button";
 
 export default function KabeGolHome() {
   const [isSinglePopupOpen, setSinglePopupOpen] = useState(false);
   const [isMultiPopupOpen, setMultiPopupOpen] = useState(false);
   const [isRulesPopupOpen, setRulesPopupOpen] = useState(false);
+  const [isCreateRoomOpen, setCreateRoomOpen] = useState(false);
+  
   const [userLoggued, setUserLoggued] = useState([])
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -25,8 +28,16 @@ export default function KabeGolHome() {
     .then(response => response.json())
     .then(result => {
         setUserLoggued(result)
+        console.log(result)
     })
   }, [])
+
+  function CreateRoom() {
+    setMultiPopupOpen(false);
+    setCreateRoomOpen(true);
+
+  }
+
 
 
   // --- POPUP handlers ---
@@ -38,6 +49,10 @@ export default function KabeGolHome() {
 
   const openRulesPopup = () => setRulesPopupOpen(true);
   const closeRulesPopup = () => setRulesPopupOpen(false);
+
+  const createRoomOpen = () => setCreateRoomOpen(true);
+  const closeCreateRoom = () => setCreateRoomOpen(false);
+
 
   return (
     <div className={styles.container}>
@@ -79,20 +94,7 @@ export default function KabeGolHome() {
               <p className={styles.username}>Facu</p>
               <hr className={styles.divider} />
               <div className={styles.contacts}>
-                {[
-                  { name: "Nastasi", img: "/c1.jpg" },
-                  { name: "Putrino", img: "/c2.jpg" },
-                  { name: "Manzanares", img: "/c3.jpg" },
-                ].map((c, i) => (
-                  <div key={i} className={styles.contactItem}>
-                    <img
-                      src={c.img}
-                      alt={c.name}
-                      className={styles.contactPic}
-                    />
-                    <span>{c.name}</span>
-                  </div>
-                ))}
+                
               </div>
             </div>
           )}
@@ -134,10 +136,11 @@ export default function KabeGolHome() {
       >
         <div className={styles.modal}>
           <div className={styles.header}>
-            <h2>Modo Multijugador</h2>
+            <h2>Multijugador</h2>
           </div>
           <div className={styles.content}>
-            <p>Acá podrías crear o unirte a una sala multijugador.</p>
+            <Button text="Crear una sala" onClick={CreateRoom}></Button>
+            <Button text="Unirse a una sala"></Button>
           </div>
           <div className={styles.actions}>
             <button onClick={closeMultiPopup} className={styles.cancelBtn}>
@@ -146,6 +149,32 @@ export default function KabeGolHome() {
           </div>
         </div>
       </Popup>
+
+      <Popup
+        open={isCreateRoomOpen}
+        onClose={closeCreateRoom}
+        modal
+        nested
+        closeOnDocumentClick={false}
+      >
+        <div className={styles.modal}>
+          <div className={styles.header}>
+            <h2>Crear una Sala</h2>
+          </div>
+          <div className={styles.content}>
+            <p>Aquí puedes configurar y crear una nueva sala de juego.</p>
+          </div>
+          <div className={styles.actions}>
+            <button onClick={CreateRoom} className={styles.confirmBtn}>
+              Crear
+            </button>
+            <button onClick={closeCreateRoom} className={styles.cancelBtn}>
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </Popup>
+
 
       {/* Popup Reglas */}
       <Popup
@@ -160,9 +189,7 @@ export default function KabeGolHome() {
             <h2>Reglas del Juego</h2>
           </div>
           <div className={styles.content}>
-            <p>1. Gana el que meta más goles.</p>
-            <p>2. No se permiten manos 😅</p>
-            <p>3. Disfrutá y reíte, que es Kabegol!</p>
+            
           </div>
           <div className={styles.actions}>
             <button onClick={closeRulesPopup} className={styles.cancelBtn}>
