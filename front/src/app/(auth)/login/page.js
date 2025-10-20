@@ -88,7 +88,7 @@ export default function Login() {
         <div className={styles.contenedorLogin}>
             <div className={styles.contenedorFormLogin}>
                 <h1>Login</h1>
-                <Input placeholder="Escriba su nombre de usuario" page="login" type="text" onChange={saveUser} name="Nombre" text="Nickname" />
+                <Input placeholder="Escriba su nombre de usuario" page="login" type="text" onChange={saveUser} name="Nombre" text="Username" />
                 <Input placeholder="Escriba su contraseña" page="login" type="password" onChange={savePassword} name="contraseña" text="Contraseña" onKeyDown={handleKeyDown}/>
                 <Button text="Sign In" onClick={SignIn} page="login"></Button>
                 <h3>¿Es la primera vez que ingresas?</h3>

@@ -4,12 +4,69 @@ import { useEffect, useState } from "react";
 import Popup from "reactjs-popup";
 import styles from "./home.module.css";
 import Button from "@/components/Button";
+import { useSocket } from "@/hooks/useSocket";
+import Input from "@/components/Input";
 
 export default function KabeGolHome() {
+
+  const { socket, isConnected } = useSocket();
+  const [code, setCode] = useState("");
+
+  const [jugadores, setJugadores] = useState([]);
+  
+  useEffect(() => {
+  if (!socket) return;
+
+  socket.on("updatePlayers", (jugadores) => {
+    console.log("🔄 Actualización de jugadores recibida");
+    console.log("👥 Jugadores actuales:", jugadores);
+    setJugadores(jugadores);
+  });
+
+  return () => {
+    socket.off("updatePlayers");
+  };
+}, [socket]);
+
+  function createRoom() {
+    const id_user = sessionStorage.getItem("userId");
+    socket.emit("createRoom", { id_user });
+
+    socket.on("roomCreated", (data) => {
+      console.log("✅ Sala creada con código:", data.code_room);
+      alert(`Código de la sala: ${data.code_room}`);
+    });
+
+    socket.on("errorRoom", (msg) => {
+      alert("Error: " + msg);
+    });
+
+  }
+
+  function joinRoom() {
+    const id_user = sessionStorage.getItem("userId");
+    socket.emit("joinRoomByCode", { code_room: code, id_user });
+
+    socket.off("joinedRoom"); // 💥 Limpia anteriores
+    socket.off("errorRoom");
+
+
+    socket.on("joinedRoom", (data) => {
+      console.log("✅ Te uniste a la sala:", data.code_room);
+      alert(`Te uniste a la sala ${data.code_room}`);
+    });
+
+    socket.on("errorRoom", (msg) => {
+      alert("Error: " + msg);
+    });
+  }
+
+
   const [isSinglePopupOpen, setSinglePopupOpen] = useState(false);
   const [isMultiPopupOpen, setMultiPopupOpen] = useState(false);
   const [isRulesPopupOpen, setRulesPopupOpen] = useState(false);
   const [isCreateRoomOpen, setCreateRoomOpen] = useState(false);
+  const [isJoinRoomOpen, setJoinRoomOpen] = useState(false);
   
   const [userLoggued, setUserLoggued] = useState([])
 
@@ -32,10 +89,14 @@ export default function KabeGolHome() {
     })
   }, [])
 
-  function CreateRoom() {
+  function showCreateRoom() {
     setMultiPopupOpen(false);
     setCreateRoomOpen(true);
-
+  }
+  
+  function showJoinRoom() {
+    setMultiPopupOpen(false);
+    setJoinRoomOpen(true);
   }
 
 
@@ -52,6 +113,9 @@ export default function KabeGolHome() {
 
   const createRoomOpen = () => setCreateRoomOpen(true);
   const closeCreateRoom = () => setCreateRoomOpen(false);
+
+  const joinRoomOpen = () => setJoinRoomOpen(true);
+  const closeJoinRoom = () => setJoinRoomOpen(false);
 
 
   return (
@@ -139,8 +203,8 @@ export default function KabeGolHome() {
             <h2>Multijugador</h2>
           </div>
           <div className={styles.content}>
-            <Button text="Crear una sala" onClick={CreateRoom}></Button>
-            <Button text="Unirse a una sala"></Button>
+            <Button text="Crear una sala" onClick={showCreateRoom}></Button>
+            <Button text="Unirse a una sala" onClick={showJoinRoom}></Button>
           </div>
           <div className={styles.actions}>
             <button onClick={closeMultiPopup} className={styles.cancelBtn}>
@@ -165,10 +229,37 @@ export default function KabeGolHome() {
             <p>Aquí puedes configurar y crear una nueva sala de juego.</p>
           </div>
           <div className={styles.actions}>
-            <button onClick={CreateRoom} className={styles.confirmBtn}>
+            <button onClick={createRoom} className={styles.confirmBtn}>
               Crear
             </button>
             <button onClick={closeCreateRoom} className={styles.cancelBtn}>
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </Popup>
+
+
+      <Popup
+        open={isJoinRoomOpen}
+        onClose={closeJoinRoom}
+        modal
+        nested
+        closeOnDocumentClick={false}
+      >
+        <div className={styles.modal}>
+          <div className={styles.header}>
+            <h2>Unirse a una Sala</h2>
+          </div>
+          <div className={styles.content}>
+            <p>Escribe el código de la sala</p>
+          </div>
+          <Input placeholder="ABC123..." type="text" onChange={(e) => {setCode(e.target.value)}}/>
+          <div className={styles.actions}>
+            <button onClick={joinRoom} className={styles.confirmBtn}>
+              Crear
+            </button>
+            <button onClick={closeJoinRoom} className={styles.cancelBtn}>
               Cancelar
             </button>
           </div>

@@ -248,29 +248,122 @@ app.post('/newChat', async function (req, res) {
 
 io.on("connection", (socket) => {
     const req = socket.request;
-    socket.on("joinRoom", (data) => {
-        console.log("🚀 ~ io.on ~ req.session.room:", req.session.room);
-        if (req.session.room != undefined && req.session.room.length > 0)
-            socket.leave(req.session.room);
-            req.session.room = data.room;
-            socket.join(req.session.room);
-            io.to(req.session.room).emit("chat-messages", {
-                user: req.session.user,
-                room: req.session.room,
-        });
+    // socket.on("joinRoom", (data) => {
+    //     console.log("🚀 ~ io.on ~ req.session.room:", req.session.room);
+    //     if (req.session.room != undefined && req.session.room.length > 0)
+    //         socket.leave(req.session.room);
+    //         req.session.room = data.room;
+    //         socket.join(req.session.room);
+    //         io.to(req.session.room).emit("chat-messages", {
+    //             user: req.session.user,
+    //             room: req.session.room,
+    //     });
+    // });
+
+    console.log("🟢 Cliente conectado:", socket.id);
+
+    // --- Crear sala ---
+    socket.on("createRoom", async (data) => {
+    try {
+        const { id_user } = data;
+
+      // Generar código único (6 caracteres)
+        const code_room = Math.random().toString(36).substring(2, 8).toUpperCase();
+
+      // Crear la sala en la base
+        const queryRoom = `
+        INSERT INTO Rooms (code_room, id_host)
+        VALUES ('${code_room}', ${id_user})
+        `;
+        const result = await realizarQuery(queryRoom);
+
+      // Obtener el id_room insertado
+        const id_room = result.insertId;
+
+      // Insertar al host en RoomPlayers
+        const queryPlayer = `
+        INSERT INTO RoomPlayers (id_room, id_user)
+        VALUES (${id_room}, ${id_user})
+        `;
+        await realizarQuery(queryPlayer);
+
+      // Unir al socket a la sala
+        socket.join(code_room);
+
+        console.log(`✅ Sala creada: ${code_room} por host ${id_user}`);
+        socket.emit("roomCreated", { code_room });
+    } catch (err) {
+        console.error("❌ Error al crear sala:", err);
+        socket.emit("errorRoom", "No se pudo crear la sala");
+    }
     });
+
+  // --- Unirse a una sala por código ---
+    socket.on("joinRoomByCode", async (data) => {
+    try {
+        const { code_room, id_user } = data;
+
+      // Buscar sala existente
+        const queryFind = `
+        SELECT * FROM Rooms 
+        WHERE code_room = '${code_room}' AND estado = 'esperando'
+        `;
+        const roomData = await realizarQuery(queryFind);
+
+        if (roomData.length === 0) {
+        return socket.emit("errorRoom", "Sala no encontrada o ya iniciada");
+        }
+
+        const id_room = roomData[0].id_room;
+
+
+        const checkExisting = await realizarQuery(`
+            SELECT * FROM RoomPlayers WHERE id_room = ${id_room} AND id_user = ${id_user}
+        `);
+
+        console.log("Check Existing:", checkExisting);
+
+        if (checkExisting.length > 0) {
+            console.log(`⚠️ Usuario ${id_user} ya está en la sala ${code_room}`);
+            return socket.emit("joinedRoom", { code_room }); // Ya estaba dentro
+        }
+      // Insertar jugador en RoomPlayers
+        const queryInsert = `
+        INSERT INTO RoomPlayers (id_room, id_user)
+        VALUES (${id_room}, ${id_user})
+        `;
+        await realizarQuery(queryInsert);
+
+      // Unir al socket a la sala
+        socket.join(code_room);
+        console.log(`👥 Usuario ${id_user} se unió a sala ${code_room}`);
+
+        const jugadores = await realizarQuery(`
+            SELECT id_user FROM RoomPlayers WHERE id_room = ${id_room}
+        `);
+
+        // Notificar a todos en la sala con la lista completa
+        io.to(code_room).emit("updatePlayers", jugadores);
+
+        // Confirmar al que se acaba de unir
+        socket.emit("joinedRoom", { code_room });
+    } catch (err) {
+        console.error("❌ Error al unirse a sala:", err);
+        socket.emit("errorRoom", "No se pudo unir a la sala");
+    }
+    });
+
+    
+
+
     socket.on("pingAll", (data) => {
         console.log("PING ALL: ", data);
         io.emit("pingAll", { event: "Ping to all", message: data });
     });
-    socket.on("sendMessage", (data) => {
-        io.to(req.session.room).emit("newMessage", {
-            room: req.session.room,
-            message: data,
-        });
-    });
+
+
     socket.on("disconnect", () => {
-        console.log("Disconnect");
+        console.log("🔴 Cliente desconectado:", socket.id);
     });
 });
 
