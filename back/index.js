@@ -248,17 +248,6 @@ app.post('/newChat', async function (req, res) {
 
 io.on("connection", (socket) => {
     const req = socket.request;
-    // socket.on("joinRoom", (data) => {
-    //     console.log("🚀 ~ io.on ~ req.session.room:", req.session.room);
-    //     if (req.session.room != undefined && req.session.room.length > 0)
-    //         socket.leave(req.session.room);
-    //         req.session.room = data.room;
-    //         socket.join(req.session.room);
-    //         io.to(req.session.room).emit("chat-messages", {
-    //             user: req.session.user,
-    //             room: req.session.room,
-    //     });
-    // });
 
     console.log("🟢 Cliente conectado:", socket.id);
 
@@ -268,7 +257,7 @@ io.on("connection", (socket) => {
         const { id_user } = data;
 
       // Generar código único (6 caracteres)
-        const code_room = Math.random().toString(36).substring(2, 8).toUpperCase();
+        const code_room = Math.random().toString(36).substring(2, 10).toUpperCase();
 
       // Crear la sala en la base
         const queryRoom = `
@@ -291,7 +280,21 @@ io.on("connection", (socket) => {
         socket.join(code_room);
 
         console.log(`✅ Sala creada: ${code_room} por host ${id_user}`);
-        socket.emit("roomCreated", { code_room });
+        socket.emit("roomCreated", { code_room, host: {id_user} });
+
+        // Obtener jugadores de la sala (por ahora solo el host)
+        const jugadores = await realizarQuery(`
+            SELECT u.id_user, u.username, u.image, r.id_host
+            FROM RoomPlayers rp
+            JOIN Users u ON rp.id_user = u.id_user
+            JOIN Rooms r ON rp.id_room = r.id_room
+            WHERE rp.id_room = ${id_room}
+        `);
+
+        // Enviar a todos (por ahora solo el host conectado)
+        io.to(code_room).emit("updatePlayers", jugadores);
+
+
     } catch (err) {
         console.error("❌ Error al crear sala:", err);
         socket.emit("errorRoom", "No se pudo crear la sala");
@@ -333,13 +336,18 @@ io.on("connection", (socket) => {
         VALUES (${id_room}, ${id_user})
         `;
         await realizarQuery(queryInsert);
-
-      // Unir al socket a la sala
+        
+    
+        // Unir al socket a la sala
         socket.join(code_room);
         console.log(`👥 Usuario ${id_user} se unió a sala ${code_room}`);
-
+        
         const jugadores = await realizarQuery(`
-            SELECT id_user FROM RoomPlayers WHERE id_room = ${id_room}
+            SELECT u.id_user, u.username, u.image, r.id_host
+            FROM RoomPlayers rp
+            JOIN Users u ON rp.id_user = u.id_user
+            JOIN Rooms r ON rp.id_room = r.id_room
+            WHERE rp.id_room = ${id_room}
         `);
 
         // Notificar a todos en la sala con la lista completa

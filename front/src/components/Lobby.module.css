@@ -1,0 +1,87 @@
+.lobbyContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1e1e2f, #3c3b54);
+  color: #f0f0f0;
+  font-family: "Poppins", sans-serif;
+  padding: 2rem;
+}
+
+.roomCodeBox {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 1rem 2rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+  margin-bottom: 2rem;
+}
+
+.players {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 2rem;
+  width: 100%;
+  max-width: 800px;
+}
+
+.playerCard {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  text-align: center;
+  padding: 1.5rem 1rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.playerCard:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.4);
+}
+
+.playerCard img {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.4);
+  margin-bottom: 0.5rem;
+}
+
+.playerName {
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 0.2rem;
+}
+
+.hostTag {
+  display: inline-block;
+  background: gold;
+  color: #1e1e2f;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  margin-top: 0.3rem;
+}
+
+.ready {
+  color: #7CFC00;
+  font-weight: 600;
+  margin-top: 0.3rem;
+}
+
+.emptySlot {
+  opacity: 0.5;
+  font-style: italic;
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2rem;
+  border-radius: 12px;
+}
