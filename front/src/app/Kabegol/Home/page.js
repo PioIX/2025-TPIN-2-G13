@@ -6,6 +6,7 @@ import styles from "./home.module.css";
 import Button from "@/components/Button";
 import { useSocket } from "@/hooks/useSocket";
 import Input from "@/components/Input";
+import Lobby from "@/components/Lobby";
 
 export default function KabeGolHome() {
 
@@ -13,20 +14,22 @@ export default function KabeGolHome() {
   const [code, setCode] = useState("");
 
   const [jugadores, setJugadores] = useState([]);
+  const [inLobby, setInLobby] = useState(false);
+  const [roomCode, setRoomCode] = useState(null);
   
   useEffect(() => {
-  if (!socket) return;
+    if (!socket) return;
 
-  socket.on("updatePlayers", (jugadores) => {
-    console.log("🔄 Actualización de jugadores recibida");
-    console.log("👥 Jugadores actuales:", jugadores);
-    setJugadores(jugadores);
-  });
+    socket.on("updatePlayers", (jugadores) => {
+      console.log("🔄 Actualización de jugadores recibida");
+      console.log("👥 Jugadores actuales:", jugadores);
+      setJugadores(jugadores);
+    });
 
-  return () => {
-    socket.off("updatePlayers");
-  };
-}, [socket]);
+    return () => {
+      socket.off("updatePlayers");
+    };
+  }, [socket]);
 
   function createRoom() {
     const id_user = sessionStorage.getItem("userId");
@@ -34,7 +37,8 @@ export default function KabeGolHome() {
 
     socket.on("roomCreated", (data) => {
       console.log("✅ Sala creada con código:", data.code_room);
-      alert(`Código de la sala: ${data.code_room}`);
+      setRoomCode(data.code_room);
+      setInLobby(true);
     });
 
     socket.on("errorRoom", (msg) => {
@@ -53,7 +57,8 @@ export default function KabeGolHome() {
 
     socket.on("joinedRoom", (data) => {
       console.log("✅ Te uniste a la sala:", data.code_room);
-      alert(`Te uniste a la sala ${data.code_room}`);
+      setRoomCode(data.code_room);
+      setInLobby(true);
     });
 
     socket.on("errorRoom", (msg) => {
@@ -117,8 +122,16 @@ export default function KabeGolHome() {
   const joinRoomOpen = () => setJoinRoomOpen(true);
   const closeJoinRoom = () => setJoinRoomOpen(false);
 
-
-  return (
+  if (inLobby) {
+    return (
+      <Lobby
+        code={roomCode}
+        jugadores={jugadores}
+        userId={sessionStorage.getItem("userId")}
+      />
+    ); 
+  } else {
+    return (
     <div className={styles.container}>
       {/* Fondo cancha animada */}
       <div className={styles.background}></div>
@@ -291,4 +304,5 @@ export default function KabeGolHome() {
       </Popup>
     </div>
   );
+  }
 }
