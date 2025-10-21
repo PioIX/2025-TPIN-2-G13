@@ -106,3 +106,21 @@
     border-radius: 6px;
     cursor: pointer;
 }
+
+
+.startButton {
+    background-color: #ffd400;
+    color: #1a1a1a;
+    border: none;
+    padding: 12px 24px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-radius: 8px;
+    margin-top: 20px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.startButton:hover {
+    background-color: #ffb800;
+}

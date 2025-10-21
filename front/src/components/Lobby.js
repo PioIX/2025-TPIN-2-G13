@@ -1,7 +1,49 @@
 "use client";
+import { useRouter } from "next/navigation";
+import Button from "./Button";
 import styles from "./lobby.module.css";
+import { useEffect } from "react";
+import { useSocket } from "@/hooks/useSocket";
 
 export default function Lobby({ code, jugadores, userId }) {
+
+  const {socket, isConnected} = useSocket();
+  const router = useRouter();
+
+  useEffect(() => {
+
+    console.log(socket)
+    if (!socket) {
+      console.log("⛔ No hay socket todavía");
+      return;
+    }
+
+    console.log("✅ Socket listo, escuchando gameStart...");
+
+    socket.on("gameStart", (code) => {
+      console.log("🚀 Recibido gameStart con code:", code);
+      router.push(`/Kabegol/Game?code=${code}`);
+    });
+
+    return () => {
+      socket.off("gameStart");
+    };
+  }, [socket]);
+
+  console.log("Jugadores en Lobby:", jugadores);
+  
+  console.log("Mi userId:", userId); 
+  const soyHost = jugadores.some(
+  (jug) => Number(jug.id_user) === Number(userId) && Number(jug.esHost) === 1
+  );
+
+  console.log("¿Soy host?", soyHost);
+
+  function onStartGame() {
+    console.log("🚀 Iniciando juego...");
+    socket.emit("startGame", code);
+  }
+
   return (
     <div className={styles.lobbyContainer}>
       {/* Caja elegante con el código */}
@@ -16,7 +58,7 @@ export default function Lobby({ code, jugadores, userId }) {
             <h3 className={styles.playerName}>{jug.username}</h3>
 
             {/* Si es el host */}
-            {jug.esHost && <p className={styles.hostTag}>Host</p>}
+            {Boolean(jug.esHost) && <p className={styles.hostTag}>Host</p>}
 
             {/* Si el jugador actual está listo */}
             {jug.id_user === userId && (
@@ -29,7 +71,12 @@ export default function Lobby({ code, jugadores, userId }) {
         {jugadores.length < 2 && (
           <div className={styles.emptySlot}>Esperando jugador...</div>
         )}
-      </div>
+        </div>
+
+        {/* 🔥 Botón visible solo para el host cuando hay 2 jugadores */}
+        {soyHost && jugadores.length === 2 && (
+          <Button page="lobby" onClick={onStartGame} text="Iniciar Juego"/>
+      )}
     </div>
   );
 }

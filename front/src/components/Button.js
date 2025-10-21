@@ -11,8 +11,7 @@ export default function Button(props) {
                         [styles.buttonhome] : props.page == "home",
                         [styles.buttonLogin] : props.page === "login",
                         [styles.buttonRegister] : props.page === "register",
-                        [styles.buttonNuevoChat] : props.use === "nuevoChat",
-                        [styles.buttonMandarMensaje] : props.use === "mandarMensaje"
+                        [styles.startButton] : props.page === "lobby",
                     }
                 )
             } onClick={props.onClick}>{props.text}</button>

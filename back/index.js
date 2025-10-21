@@ -284,11 +284,16 @@ io.on("connection", (socket) => {
 
         // Obtener jugadores de la sala (por ahora solo el host)
         const jugadores = await realizarQuery(`
-            SELECT u.id_user, u.username, u.image, r.id_host
+            SELECT 
+                u.id_user, 
+                u.username, 
+                u.image,
+                CASE WHEN u.id_user = r.id_host THEN 1 ELSE 0 END AS esHost
             FROM RoomPlayers rp
             JOIN Users u ON rp.id_user = u.id_user
             JOIN Rooms r ON rp.id_room = r.id_room
             WHERE rp.id_room = ${id_room}
+            ORDER BY esHost DESC, u.id_user ASC
         `);
 
         // Enviar a todos (por ahora solo el host conectado)
@@ -343,11 +348,16 @@ io.on("connection", (socket) => {
         console.log(`👥 Usuario ${id_user} se unió a sala ${code_room}`);
         
         const jugadores = await realizarQuery(`
-            SELECT u.id_user, u.username, u.image, r.id_host
+            SELECT 
+                u.id_user, 
+                u.username, 
+                u.image,
+                CASE WHEN u.id_user = r.id_host THEN 1 ELSE 0 END AS esHost
             FROM RoomPlayers rp
             JOIN Users u ON rp.id_user = u.id_user
             JOIN Rooms r ON rp.id_room = r.id_room
             WHERE rp.id_room = ${id_room}
+            ORDER BY esHost DESC, u.id_user ASC
         `);
 
         // Notificar a todos en la sala con la lista completa
@@ -362,6 +372,15 @@ io.on("connection", (socket) => {
     });
 
     
+
+    socket.on("startGame", async (data) => {
+
+        const code = data;
+        console.log(`El host inició la partida en la sala ${code}`);
+        io.to(code).emit("gameStart", code);
+    });
+
+
 
 
     socket.on("pingAll", (data) => {
