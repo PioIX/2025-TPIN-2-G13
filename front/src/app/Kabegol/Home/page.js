@@ -7,9 +7,10 @@ import Button from "@/components/Button";
 import { useSocket } from "@/hooks/useSocket";
 import Input from "@/components/Input";
 import Lobby from "@/components/Lobby";
+import { useRouter } from "next/navigation";
 
 export default function KabeGolHome() {
-
+  const router = useRouter();
   const { socket, isConnected } = useSocket();
   const [code, setCode] = useState("");
 
@@ -20,10 +21,19 @@ export default function KabeGolHome() {
   useEffect(() => {
     if (!socket) return;
 
+    socket.on("testResponse", (msg) => {
+      alert("Respuesta de prueba: " + msg);
+    });
+
     socket.on("updatePlayers", (jugadores) => {
       console.log("🔄 Actualización de jugadores recibida");
       console.log("👥 Jugadores actuales:", jugadores);
       setJugadores(jugadores);
+    });
+
+    socket.on("gameStart", (data) => {
+      console.log("🚀 Recibido gameStart con code:", data.code);
+      router.push(`/Kabegol/Game?code=${data.code}`);
     });
 
     return () => {
@@ -43,8 +53,8 @@ export default function KabeGolHome() {
 
     socket.on("errorRoom", (msg) => {
       alert("Error: " + msg);
-    });
-
+    }); 
+    
   }
 
   function joinRoom() {
@@ -124,11 +134,14 @@ export default function KabeGolHome() {
 
   if (inLobby) {
     return (
+      <>
       <Lobby
         code={roomCode}
         jugadores={jugadores}
         userId={sessionStorage.getItem("userId")}
       />
+      <button onClick={() => socket.emit("test", { roomCode })}>Sala</button>
+      </>
     ); 
   } else {
     return (

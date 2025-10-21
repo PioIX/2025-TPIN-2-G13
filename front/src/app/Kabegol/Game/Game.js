@@ -69,6 +69,7 @@ export default function Game() {
     this.ball.body.setCollideWorldBounds(true).setBounce(1);
   }
 
+  
   function update() {
     // Por ahora sin movimiento
   }

@@ -8,27 +8,22 @@ import { useSocket } from "@/hooks/useSocket";
 export default function Lobby({ code, jugadores, userId }) {
 
   const {socket, isConnected} = useSocket();
-  const router = useRouter();
+  
 
-  useEffect(() => {
+  // useEffect(() => {
 
-    console.log(socket)
-    if (!socket) {
-      console.log("⛔ No hay socket todavía");
-      return;
-    }
+  //   console.log(socket)
+  //   if (!socket) {
+  //     console.log("⛔ No hay socket todavía");
+  //     return;
+  //   }
 
-    console.log("✅ Socket listo, escuchando gameStart...");
+  //   console.log("✅ Socket listo, escuchando gameStart...");
 
-    socket.on("gameStart", (code) => {
-      console.log("🚀 Recibido gameStart con code:", code);
-      router.push(`/Kabegol/Game?code=${code}`);
-    });
-
-    return () => {
-      socket.off("gameStart");
-    };
-  }, [socket]);
+  //   return () => {
+  //     socket.off("gameStart");
+  //   };
+  // }, [socket]);
 
   console.log("Jugadores en Lobby:", jugadores);
   
@@ -41,7 +36,7 @@ export default function Lobby({ code, jugadores, userId }) {
 
   function onStartGame() {
     console.log("🚀 Iniciando juego...");
-    socket.emit("startGame", code);
+    socket.emit("startGame", {code});
   }
 
   return (

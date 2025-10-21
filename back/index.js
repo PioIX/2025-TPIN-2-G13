@@ -371,13 +371,16 @@ io.on("connection", (socket) => {
     }
     });
 
-    
+    socket.on("test", (data) => {
+        console.log("TEST DATA: ", data);
+        io.to(data.roomCode).emit("testResponse", { message: "Test recibido correctamente" });
+    });
 
-    socket.on("startGame", async (data) => {
-
-        const code = data;
+    socket.on("startGame", (data) => {
+        const code = data.code;
         console.log(`El host inició la partida en la sala ${code}`);
-        io.to(code).emit("gameStart", code);
+        console.log(`La sala del host es: ${code}`);
+        io.to(code).emit("gameStart", {code});
     });
 
 
