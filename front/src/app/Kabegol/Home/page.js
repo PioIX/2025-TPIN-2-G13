@@ -8,8 +8,10 @@ import { useSocket } from "@/hooks/useSocket";
 import Input from "@/components/Input";
 import Lobby from "@/components/Lobby";
 import { useRouter } from "next/navigation";
+import { useConection } from "@/hooks/useConection";
 
 export default function KabeGolHome() {
+  const { url } = useConection();
   const router = useRouter();
   const { socket, isConnected } = useSocket();
   const [code, setCode] = useState("");
@@ -88,7 +90,7 @@ export default function KabeGolHome() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    fetch("http://localhost:4006/findUserById", {
+    fetch(url + "/findUserById", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"

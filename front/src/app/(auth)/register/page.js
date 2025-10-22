@@ -6,9 +6,11 @@ import Input from "@/components/Input";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useConection } from "@/hooks/useConection";
 
 export default function Register() {
 
+    const {url} = useConection();
     const [nombre, SetNombre] = useState("")
     const [contraseña, SetContraseña] = useState("")
     const [confirmContraseña, setConfirmContraseña] = useState("")
@@ -58,7 +60,7 @@ export default function Register() {
                 return
             }
 
-            fetch("http://localhost:4006/findUser", {
+            fetch(url + "/findUser", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -82,7 +84,7 @@ export default function Register() {
         }
 
         if (contraseña === confirmContraseña) {
-            fetch("http://localhost:4006/register", {
+            fetch(url + "/register", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -93,7 +95,7 @@ export default function Register() {
             .then(result => {
                 showModal("Exito", "Usuario creado correctamente")
                 sessionStorage.setItem("isLoggedIn", "true"); 
-                fetch('http://localhost:4006/findUserId', {
+                fetch(url + '/findUserId', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username: nombre })

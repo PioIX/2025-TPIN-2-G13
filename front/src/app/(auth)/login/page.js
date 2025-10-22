@@ -3,6 +3,7 @@
 import styles from "@/app/(auth)/login/login.module.css"
 import Button from "@/components/Button";
 import Input from "@/components/Input";
+import { useConection } from "@/hooks/useConection";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
@@ -13,6 +14,7 @@ export default function Login() {
     
     const [mostrarMensaje, setMostrarMensaje] = useState(false);
     const [textoMensaje, setTextoMensaje] = useState("");
+    const {url} = useConection();
 
     const showModal = (title, message) => {
     setTextoMensaje(`${title}: ${message}`);
@@ -27,7 +29,7 @@ export default function Login() {
 
     
     useEffect(() => {
-        fetch("http://localhost:4006/users")
+        fetch(url + "/users")
             .then(response => response.json())
             .then(result => {
                 console.log(result)
@@ -49,7 +51,7 @@ export default function Login() {
                     if (usuarios[i].password == password) {
                         sessionStorage.setItem("isLoggedIn", "true"); // guardar login
                         showModal("Has iniciado Sesión", "Enseguida estarás en KabeGol")
-                        fetch('http://localhost:4006/findUserId', {
+                        fetch(url + "/findUserId", {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ username: user })

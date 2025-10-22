@@ -13,24 +13,33 @@ var port = process.env.PORT || 4006; //Ejecuto el servidor en el puerto 300// Co
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+
 app.use(cors({
     origin: [
         "http://localhost:3000",
         "http://localhost:3001", 
-        "http://10.1.5.88:3000",  // 🔥 AGREGAR
-        "http://10.1.5.88:3001"   // 🔥 AGREGAR
+        "http://10.1.4.168:3001",
+        "http://10.1.4.129:3000",
+        "http://10.1.4.129:3000",
+        "http://10.1.4.129:3001",
     ],
     credentials: true
 }));
 
 
 const server = app.listen(port, () => {
-    console.log(`Servidor corriendo encç http://localhost:${port}/`)
+    console.log(`Servidor corriendo en http://localhost:${port}/`)
 })
 
 const io = require("socket.io")(server, {
     cors: {
-        origin: ["http://localhost:3000", "http://localhost:3001", "http://10.1.5.88:3000", "http://10.1.5.88:3001"],
+        origin: [
+        "http://localhost:3000", 
+        "http://localhost:3001", 
+        "http://10.1.4.168:3000",
+        "http://10.1.4.168:3001",
+        "http://10.1.4.129:3000",
+        ],
         methods: ["GET", "POST", "PUT", "DELETE"],
         credentials: true,
     },
