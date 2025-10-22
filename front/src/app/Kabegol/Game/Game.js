@@ -64,15 +64,18 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
       const bg = scene.add.image(640, 360, "background");
       bg.setDisplaySize(1280, 720);
 
-      // Suelo invisible (para colisiones)
-      ground = scene.add.rectangle(640, 700, 1280, 40, 0x000000, 0);
+
+      
+
+      // Suelo invisible (para colisiones) - Moverlo más arriba
+      ground = scene.add.rectangle(640, 643, 1280, 10, 0x000000, 0);
       scene.physics.add.existing(ground, true); // Static body
 
       // Línea visual del suelo
-      const groundLine = scene.add.rectangle(640, 680, 1280, 4, 0xffffff);
+      const groundLine = scene.add.rectangle(640, 643, 1280, 3, 0xffffff);
 
       // Arcos
-      goalLeft = scene.add.rectangle(40, 600, 80, 160, 0xff0000, 0.3);
+      goalLeft = scene.add.rectangle(40, 543, 80, 160, 0xff0000, 0.3);
       goalRight = scene.add.rectangle(1240, 600, 80, 160, 0x0000ff, 0.3);
       scene.physics.add.existing(goalLeft, true);
       scene.physics.add.existing(goalRight, true);
