@@ -1,29 +1,12 @@
 "use client";
-import { useRouter } from "next/navigation";
 import Button from "./Button";
 import styles from "./lobby.module.css";
-import { useEffect } from "react";
 import { useSocket } from "@/hooks/useSocket";
 
 export default function Lobby({ code, jugadores, userId }) {
 
   const {socket, isConnected} = useSocket();
   
-
-  // useEffect(() => {
-
-  //   console.log(socket)
-  //   if (!socket) {
-  //     console.log("⛔ No hay socket todavía");
-  //     return;
-  //   }
-
-  //   console.log("✅ Socket listo, escuchando gameStart...");
-
-  //   return () => {
-  //     socket.off("gameStart");
-  //   };
-  // }, [socket]);
 
   console.log("Jugadores en Lobby:", jugadores);
   

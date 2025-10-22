@@ -376,15 +376,87 @@ io.on("connection", (socket) => {
         io.to(data.roomCode).emit("testResponse", { message: "Test recibido correctamente" });
     });
 
-    socket.on("startGame", (data) => {
+    socket.on("startGame", async (data) => {
         const code = data.code;
         console.log(`El host inició la partida en la sala ${code}`);
         console.log(`La sala del host es: ${code}`);
+
+        await realizarQuery(`
+            UPDATE Rooms 
+            SET estado = 'en_juego' 
+            WHERE code_room = '${code}'
+        `);
+
+
         io.to(code).emit("gameStart", {code});
+
     });
 
+    socket.on("joinGameRoom", async (data) => {
+        const { code_room, userId } = data;
+        socket.join(code_room);
+        
+        console.log(`🎮 Jugador ${userId} (socket: ${socket.id}) se unió a sala de juego ${code_room}`);
 
+        // Obtener los jugadores de esta sala
+        const jugadores = await realizarQuery(`
+            SELECT rp.id_user, r.id_host
+            FROM RoomPlayers rp
+            JOIN Rooms r ON rp.id_room = r.id_room
+            WHERE r.code_room = '${code_room}'
+            ORDER BY rp.id ASC
+        `);
 
+        if (jugadores.length >= 2) {
+            const p1 = jugadores[0].id_user; // Primer jugador (host)
+            const p2 = jugadores[1].id_user; // Segundo jugador
+
+            // Enviar asignación al jugador que acaba de unirse
+            socket.emit("playerAssigned", { p1, p2 });
+
+            console.log(`✅ Asignación enviada a ${userId}: P1=${p1}, P2=${p2}`);
+        }
+    });
+
+    socket.on("playerMove", (data) => {
+        const { code_room, playerNumber, x, y, vx, vy } = data;
+        
+        // Enviar a todos EXCEPTO al que movió
+        socket.to(code_room).emit("opponentMove", {
+            playerNumber,
+            x,
+            y,
+            vx,
+            vy
+        });
+    });
+
+    socket.on("ballUpdate", (data) => {
+        const { code_room, x, y, vx, vy } = data;
+        
+        // Solo el host actualiza la pelota, broadcast a todos
+        socket.to(code_room).emit("ballSync", {
+            x,
+            y,
+            vx,
+            vy
+        });
+    });
+
+    socket.on("goal", async (data) => {
+        const { code_room, score1, score2 } = data;
+        
+        console.log(`⚽ GOL en sala ${code_room}! Score: ${score1} - ${score2}`);
+        
+        // Broadcast a todos en la sala
+        io.to(code_room).emit("goalScored", {
+            score1,
+            score2
+        });
+
+        // Opcional: Guardar en base de datos
+        // await realizarQuery(`UPDATE RoomPlayers SET score = ${score1} WHERE ...`);
+    });
 
     socket.on("pingAll", (data) => {
         console.log("PING ALL: ", data);
