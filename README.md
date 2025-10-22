@@ -13,7 +13,8 @@ Durante la partida, el sistema llevará el control del tiempo de juego, el marca
 A futuro, se prevé la implementación de un modo con inteligencia artificial, en el que el usuario podrá jugar contra un bot controlado por la computadora. Este bot será programado para reaccionar a la posición de la pelota y al movimiento del rival, brindando un desafío adicional a los jugadores que deseen practicar sin necesidad de otro oponente humano.
 En resumen, la aplicación busca integrar diversión, interacción social y competencia, ofreciendo tanto partidas entre amigos mediante códigos de acceso a salas privadas, como la posibilidad de enfrentarse a un bot controlado por inteligencia artificial.
 
-Tabla Base de datos
+Tabla Base de datos:
+
 <img width="620" height="223" alt="image" src="https://github.com/user-attachments/assets/e4868039-96a6-453a-96e7-d05a2cb3b086" />
 
 ![Uploading image.png…]()
