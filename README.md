@@ -17,7 +17,6 @@ Tabla Base de datos:
 
 <img width="620" height="223" alt="image" src="https://github.com/user-attachments/assets/e4868039-96a6-453a-96e7-d05a2cb3b086" />
 
-![Uploading image.png…]()
 
 Objetivos:
 
