@@ -27,6 +27,7 @@ app.use(cors({
         "http://10.1.5.165:3001",
         "http://10.1.5.165:3000",
         "http://10.1.4.86:3000",
+        "http://10.1.4.85:3000",
     ],
     credentials: true
 }));
@@ -49,6 +50,7 @@ const io = require("socket.io")(server, {
         "http://10.1.5.165:3001",
         "http://10.1.5.165:3000",
         "http://10.1.4.86:3000",
+        "http://10.1.4.85:3000",
         ],
         methods: ["GET", "POST", "PUT", "DELETE"],
         credentials: true,
