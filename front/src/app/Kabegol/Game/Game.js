@@ -57,6 +57,71 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
       this.load.image("background", "/backgrounds/estadio1.png");
     }
 
+    // Función para crear la textura de la pelota
+    function createSoccerBall(scene) {
+      const graphics = scene.make.graphics({ x: 0, y: 0, add: false });
+      const radius = 15;
+      
+      // Fondo blanco de la pelota
+      graphics.fillStyle(0xffffff, 1);
+      graphics.fillCircle(radius, radius, radius);
+      
+      // Pentágono central negro
+      graphics.fillStyle(0x000000, 1);
+      graphics.beginPath();
+      const pentagonRadius = radius * 0.35;
+      for (let i = 0; i < 5; i++) {
+        const angle = (i * 2 * Math.PI / 5) - Math.PI / 2;
+        const x = radius + Math.cos(angle) * pentagonRadius;
+        const y = radius + Math.sin(angle) * pentagonRadius;
+        if (i === 0) {
+          graphics.moveTo(x, y);
+        } else {
+          graphics.lineTo(x, y);
+        }
+      }
+      graphics.closePath();
+      graphics.fillPath();
+      
+      // Pentágonos alrededor (simplificados)
+      const positions = [
+        { angle: 0, distance: 0.7 },
+        { angle: 72, distance: 0.7 },
+        { angle: 144, distance: 0.7 },
+        { angle: 216, distance: 0.7 },
+        { angle: 288, distance: 0.7 },
+      ];
+      
+      positions.forEach(pos => {
+        const angleRad = (pos.angle * Math.PI) / 180;
+        const centerX = radius + Math.cos(angleRad) * radius * pos.distance;
+        const centerY = radius + Math.sin(angleRad) * radius * pos.distance;
+        const smallRadius = radius * 0.25;
+        
+        graphics.fillStyle(0x000000, 1);
+        graphics.beginPath();
+        for (let i = 0; i < 5; i++) {
+          const angle = (i * 2 * Math.PI / 5) - Math.PI / 2 + angleRad;
+          const x = centerX + Math.cos(angle) * smallRadius;
+          const y = centerY + Math.sin(angle) * smallRadius;
+          if (i === 0) {
+            graphics.moveTo(x, y);
+          } else {
+            graphics.lineTo(x, y);
+          }
+        }
+        graphics.closePath();
+        graphics.fillPath();
+      });
+      
+      // Borde para darle profundidad
+      graphics.lineStyle(1, 0xcccccc, 0.5);
+      graphics.strokeCircle(radius, radius, radius);
+      
+      graphics.generateTexture('soccerball', radius * 2, radius * 2);
+      graphics.destroy();
+    }
+
     function create() {
       const scene = this;
 
@@ -64,7 +129,7 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
       const bg = scene.add.image(640, 360, "background");
       bg.setDisplaySize(1280, 720);
 
-
+      createSoccerBall(scene);
       
 
       // Suelo invisible (para colisiones) - Moverlo más arriba
