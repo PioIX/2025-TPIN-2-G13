@@ -55,6 +55,7 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
 
     function preload() {
       this.load.image("background", "/backgrounds/estadio1.png");
+      this.load.image("arco", "/backgrounds/arcoNormal.png");
     }
 
     // Función para crear la textura de la pelota
@@ -130,32 +131,37 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
       bg.setDisplaySize(1280, 720);
 
       createSoccerBall(scene);
-      
 
-      // Suelo invisible (para colisiones) - Moverlo más arriba
+      // Suelo invisible (para colisiones)
       ground = scene.add.rectangle(640, 643, 1280, 10, 0x000000, 0);
-      scene.physics.add.existing(ground, true); // Static body
+      scene.physics.add.existing(ground, true);
 
       // Línea visual del suelo
       const groundLine = scene.add.rectangle(640, 643, 1280, 3, 0xffffff);
 
-      // Arcos
-      goalLeft = scene.add.rectangle(40, 543, 80, 160, 0xff0000, 0.3);
-      goalRight = scene.add.rectangle(1240, 600, 80, 160, 0x0000ff, 0.3);
+      
+  
+      // Arco izquierdo (normal)
+      const arcoLeftImage = scene.add.image(25, 550, "arco");
+      arcoLeftImage.setDisplaySize(80, 200); // Ajustar tamaño según necesites
+      arcoLeftImage.setDepth(0); // Atrás de todo
+  
+      // Arco derecho (invertido horizontalmente)
+      const arcoRightImage = scene.add.image(1255, 550, "arco");
+      arcoRightImage.setDisplaySize(80, 200);
+      arcoRightImage.setFlipX(true); // 🔥 ESTO LO INVIERTE
+      arcoRightImage.setDepth(0);
+
+      // Áreas de gol (invisibles para colisiones)
+      // scene.add.rectangle(x, y, w, h, color, bright)
+      goalLeft = scene.add.rectangle(20, 560, 80, 160, 0xff0000, 0); // 🔥 Alpha 0 = invisible
+      goalRight = scene.add.rectangle(1260, 560, 80, 160, 0x0000ff, 0);
       scene.physics.add.existing(goalLeft, true);
       scene.physics.add.existing(goalRight, true);
 
-      // Postes visuales
-      scene.add.rectangle(10, 520, 8, 160, 0xffffff);
-      scene.add.rectangle(70, 520, 8, 160, 0xffffff);
-      scene.add.rectangle(70, 440, 60, 8, 0xffffff);
-
-      scene.add.rectangle(1270, 520, 8, 160, 0xffffff);
-      scene.add.rectangle(1210, 520, 8, 160, 0xffffff);
-      scene.add.rectangle(1210, 440, 60, 8, 0xffffff);
-
       // Jugador 1 (Izquierda - Rojo)
       player1 = scene.add.circle(200, 500, 30, 0xff0000);
+      player1.setDepth(1); // 🔥 Adelante del arco
       scene.physics.add.existing(player1);
       player1.body.setCollideWorldBounds(true);
       player1.body.setBounce(0.2);
@@ -163,13 +169,15 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
 
       // Jugador 2 (Derecha - Azul)
       player2 = scene.add.circle(1080, 500, 30, 0x0000ff);
+      player2.setDepth(1); // 🔥 Adelante del arco
       scene.physics.add.existing(player2);
       player2.body.setCollideWorldBounds(true);
       player2.body.setBounce(0.2);
       player2.body.setCircle(30);
 
-      // Pelota con textura
-      ball = scene.add.sprite(640, 300, 'soccerball');
+      // Pelota
+      ball = scene.add.sprite(640, 300, 'soccerball'); // 🔥 Cambiar a sprite con textura
+      ball.setDepth(1); // 🔥 Adelante del arco
       scene.physics.add.existing(ball);
       ball.body.setCollideWorldBounds(true);
       ball.body.setBounce(0.8);
