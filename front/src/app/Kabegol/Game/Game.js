@@ -168,12 +168,13 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
       player2.body.setBounce(0.2);
       player2.body.setCircle(30);
 
-      // Pelota
-      ball = scene.add.circle(640, 300, 15, 0xffffff);
+      // Pelota con textura
+      ball = scene.add.sprite(640, 300, 'soccerball');
       scene.physics.add.existing(ball);
       ball.body.setCollideWorldBounds(true);
       ball.body.setBounce(0.8);
       ball.body.setCircle(15);
+
 
       // Colisiones
       scene.physics.add.collider(player1, ground);
@@ -274,6 +275,14 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
 
     function update(time) {
       const scene = this;
+
+      // Rotar la pelota según su velocidad
+      if (ball && ball.body) {
+        const velocityMagnitude = Math.sqrt(
+          ball.body.velocity.x ** 2 + ball.body.velocity.y ** 2
+        );
+        ball.angle += velocityMagnitude * 0.05;
+      }
 
       // Movimiento del jugador controlado
       const myPlayer = playerNumberRef.current === 1 ? player1 : player2;
