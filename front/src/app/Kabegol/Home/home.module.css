@@ -200,7 +200,7 @@ gap: 15px;
 .cancelBtn {
 padding: 10px 25px;
 border: none;
-border-radius: 8px;
+border-radius: 10px;
 background-color: #e74c3c;
 color: #fff;
 font-weight: bold;
@@ -215,7 +215,7 @@ background-color: #c0392b;
 .createBtn {
 padding: 10px 25px;
 border: none;
-border-radius: 8px;
+border-radius: 10px;
 background-color: #27ae60;
 color: #fff;
 font-weight: bold;
@@ -225,6 +225,18 @@ transition: 0.3s ease;
 
 .createBtn:hover {
 background-color: #219150;
+}
+
+.joinBtn {
+padding: 10px 25px;
+border: none;
+border-radius: 10px;
+background-color: #0077ff;
+color: #fff;
+font-weight: bold;
+cursor: pointer;
+transition: 0.3s ease;
+margin: 2px;
 }
 
 /* ====== RESPONSIVE ====== */
