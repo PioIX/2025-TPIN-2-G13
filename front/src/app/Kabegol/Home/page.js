@@ -231,8 +231,8 @@ export default function KabeGolHome() {
             <h2>Multijugador</h2>
           </div>
           <div className={styles.content}>
-            <Button text="Crear una sala" onClick={showCreateRoom}></Button>
-            <Button text="Unirse a una sala" onClick={showJoinRoom}></Button>
+            <button onClick={showCreateRoom} className={styles.joinBtn}> Crear una sala </button>
+            <button onClick={showJoinRoom} className={styles.joinBtn}> Unirse a una sala </button>
           </div>
           <div className={styles.actions}>
             <button onClick={closeMultiPopup} className={styles.cancelBtn}>
@@ -250,14 +250,14 @@ export default function KabeGolHome() {
         closeOnDocumentClick={false}
       >
         <div className={styles.modal}>
-          <div className={styles.header}>
+          <div className={styles.header} >
             <h2>Crear una Sala</h2>
           </div>
           <div className={styles.content}>
             <p>Aquí puedes configurar y crear una nueva sala de juego.</p>
           </div>
           <div className={styles.actions}>
-            <button onClick={createRoom} className={styles.confirmBtn}>
+            <button onClick={createRoom} className={styles.createBtn}>
               Crear
             </button>
             <button onClick={closeCreateRoom} className={styles.cancelBtn}>
@@ -283,9 +283,11 @@ export default function KabeGolHome() {
             <p>Escribe el código de la sala</p>
           </div>
           <Input placeholder="ABC123..." type="text" onChange={(e) => {setCode(e.target.value)}}/>
+          <br></br>
+          <br></br>
           <div className={styles.actions}>
-            <button onClick={joinRoom} className={styles.confirmBtn}>
-              Crear
+            <button onClick={joinRoom} className={styles.createBtn}>
+              Unirse
             </button>
             <button onClick={closeJoinRoom} className={styles.cancelBtn}>
               Cancelar
