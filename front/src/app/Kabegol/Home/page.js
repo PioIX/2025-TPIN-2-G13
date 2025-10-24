@@ -98,13 +98,13 @@ export default function KabeGolHome() {
         body: JSON.stringify({
             id_user: sessionStorage.getItem("userId")
         })
-    })
+    })  
     .then(response => response.json())
     .then(result => {
-        setUserLoggued(result)
-        console.log(result)
-    })
-  }, [])
+        setUserLoggued(result); // Guarda el resultado en el estado
+        console.log(result);
+    });
+  }, []);
 
   function showCreateRoom() {
     setMultiPopupOpen(false);
@@ -181,9 +181,10 @@ export default function KabeGolHome() {
             alt="Perfil"
             className={styles.profilePic}
           />
+
           {sidebarOpen && (
             <div className={styles.sidebarExpanded}>
-              <p className={styles.username}>Facu</p>
+              <p className={styles.username}>{userLoggued[0].username}</p>
               <hr className={styles.divider} />
               <div className={styles.contacts}>
                 
