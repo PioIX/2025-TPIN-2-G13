@@ -1,12 +1,14 @@
 "use client";
 import { useEffect, useRef } from "react";
 import Phaser from "phaser";
+import { useRouter } from "next/navigation";
 
 export default function Game({ socket, code_room, playerNumber, userId }) {
   const gameContainer = useRef(null);
   const gameRef = useRef(null);
   const socketRef = useRef(socket);
   const playerNumberRef = useRef(playerNumber);
+  const router = useRouter();
 
   useEffect(() => {
     socketRef.current = socket;
@@ -21,11 +23,18 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
     let player1, player2, ball;
     let cursors, keys;
     let score1 = 0, score2 = 0;
-    let scoreText;
+    let scoreText, timerText, countdownText;
     let ground;
     let goalLeft, goalRight;
     let lastBallUpdate = 0;
-    const BALL_UPDATE_RATE = 50; // ms entre actualizaciones de pelota
+    const BALL_UPDATE_RATE = 50;
+    
+    // ⏱️ Variables del timer
+    let gameTime = 60; // 3 minutos en segundos
+    let gameStarted = false;
+    let gameOver = false;
+    let countdown = 3;
+    let timerEvent;
 
     const config = {
       type: Phaser.AUTO,
@@ -58,16 +67,13 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
       this.load.image("arco", "/backgrounds/arcoNormal.png");
     }
 
-    // Función para crear la textura de la pelota
     function createSoccerBall(scene) {
       const graphics = scene.make.graphics({ x: 0, y: 0, add: false });
       const radius = 15;
       
-      // Fondo blanco de la pelota
       graphics.fillStyle(0xffffff, 1);
       graphics.fillCircle(radius, radius, radius);
       
-      // Pentágono central negro
       graphics.fillStyle(0x000000, 1);
       graphics.beginPath();
       const pentagonRadius = radius * 0.35;
@@ -84,7 +90,6 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
       graphics.closePath();
       graphics.fillPath();
       
-      // Pentágonos alrededor (simplificados)
       const positions = [
         { angle: 0, distance: 0.7 },
         { angle: 72, distance: 0.7 },
@@ -115,12 +120,17 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
         graphics.fillPath();
       });
       
-      // Borde para darle profundidad
       graphics.lineStyle(1, 0xcccccc, 0.5);
       graphics.strokeCircle(radius, radius, radius);
       
       graphics.generateTexture('soccerball', radius * 2, radius * 2);
       graphics.destroy();
+    }
+
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return `${mins}:${secs.toString().padStart(2, '0')}`;
     }
 
     function create() {
@@ -132,57 +142,48 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
 
       createSoccerBall(scene);
 
-      // Suelo invisible (para colisiones)
+      // Suelo
       ground = scene.add.rectangle(640, 643, 1280, 10, 0x000000, 0);
       scene.physics.add.existing(ground, true);
-
-      // Línea visual del suelo
       const groundLine = scene.add.rectangle(640, 643, 1280, 3, 0xffffff);
 
-      
-  
-      // Arco izquierdo (normal)
+      // Arcos
       const arcoLeftImage = scene.add.image(25, 550, "arco");
-      arcoLeftImage.setDisplaySize(80, 200); // Ajustar tamaño según necesites
-      arcoLeftImage.setDepth(0); // Atrás de todo
-  
-      // Arco derecho (invertido horizontalmente)
+      arcoLeftImage.setDisplaySize(80, 200);
+      arcoLeftImage.setDepth(0);
+
       const arcoRightImage = scene.add.image(1255, 550, "arco");
       arcoRightImage.setDisplaySize(80, 200);
-      arcoRightImage.setFlipX(true); // 🔥 ESTO LO INVIERTE
+      arcoRightImage.setFlipX(true);
       arcoRightImage.setDepth(0);
 
-      // Áreas de gol (invisibles para colisiones)
-      // scene.add.rectangle(x, y, w, h, color, bright)
-      goalLeft = scene.add.rectangle(20, 560, 80, 160, 0xff0000, 0); // 🔥 Alpha 0 = invisible
-      goalRight = scene.add.rectangle(1260, 560, 80, 160, 0x0000ff, 0);
+      goalLeft = scene.add.rectangle(20, 590, 40, 160, 0xff0000, 0);
+      goalRight = scene.add.rectangle(1260, 590, 40, 160, 0x0000ff, 0);
       scene.physics.add.existing(goalLeft, true);
-      scene.physics.add.existing(goalRight, true);
+      scene.physics.add.existing(goalRight, true);  
 
-      // Jugador 1 (Izquierda - Rojo)
+      // Jugadores
       player1 = scene.add.circle(200, 500, 30, 0xff0000);
-      player1.setDepth(1); // 🔥 Adelante del arco
+      player1.setDepth(1);
       scene.physics.add.existing(player1);
       player1.body.setCollideWorldBounds(true);
       player1.body.setBounce(0.2);
       player1.body.setCircle(30);
 
-      // Jugador 2 (Derecha - Azul)
       player2 = scene.add.circle(1080, 500, 30, 0x0000ff);
-      player2.setDepth(1); // 🔥 Adelante del arco
+      player2.setDepth(1);
       scene.physics.add.existing(player2);
       player2.body.setCollideWorldBounds(true);
       player2.body.setBounce(0.2);
       player2.body.setCircle(30);
 
       // Pelota
-      ball = scene.add.sprite(640, 300, 'soccerball'); // 🔥 Cambiar a sprite con textura
-      ball.setDepth(1); // 🔥 Adelante del arco
+      ball = scene.add.sprite(640, 300, 'soccerball');
+      ball.setDepth(1);
       scene.physics.add.existing(ball);
       ball.body.setCollideWorldBounds(true);
       ball.body.setBounce(0.8);
       ball.body.setCircle(15);
-
 
       // Colisiones
       scene.physics.add.collider(player1, ground);
@@ -192,18 +193,35 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
       scene.physics.add.collider(player1, ball, handleBallHit);
       scene.physics.add.collider(player2, ball, handleBallHit);
 
-      // Detección de goles
       scene.physics.add.overlap(ball, goalLeft, () => goalScored(2), null, scene);
       scene.physics.add.overlap(ball, goalRight, () => goalScored(1), null, scene);
 
-      // Marcador
+      // UI
       scoreText = scene.add.text(640, 30, "0 - 0", {
         fontSize: "48px",
         fill: "#ffffff",
         fontFamily: "Arial",
         stroke: "#000000",
         strokeThickness: 4,
-      }).setOrigin(0.5);
+      }).setOrigin(0.5).setDepth(10);
+
+      // ⏱️ Timer
+      timerText = scene.add.text(640, 90, formatTime(gameTime), {
+        fontSize: "36px",
+        fill: "#ffff00",
+        fontFamily: "Arial",
+        stroke: "#000000",
+        strokeThickness: 3,
+      }).setOrigin(0.5).setDepth(10);
+
+      // 🎬 Cuenta regresiva inicial
+      countdownText = scene.add.text(640, 360, countdown.toString(), {
+        fontSize: "120px",
+        fill: "#ffffff",
+        fontFamily: "Arial",
+        stroke: "#000000",
+        strokeThickness: 8,
+      }).setOrigin(0.5).setDepth(20);
 
       // Controles
       cursors = scene.input.keyboard.createCursorKeys();
@@ -213,11 +231,50 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
         d: Phaser.Input.Keyboard.KeyCodes.D,
       });
 
+      // 🎬 Iniciar cuenta regresiva (solo el host)
+      if (playerNumberRef.current === 1) {
+        scene.time.addEvent({
+          delay: 1000,
+          repeat: 2,
+          callback: () => {
+            countdown--;
+            if (countdown > 0) {
+              socketRef.current.emit("updateCountdown", { code_room, countdown });
+            } else {
+              socketRef.current.emit("startGameTimer", { code_room });
+            }
+          }
+        });
+      }
+
       // Socket listeners
       if (socketRef.current) {
+        socketRef.current.on("updateCountdown", (data) => {
+          countdown = data.countdown;
+          countdownText.setText(countdown.toString());
+        });
+
+        socketRef.current.on("startGameTimer", () => {
+          countdownText.setText("GO!");
+          scene.time.delayedCall(500, () => {
+            countdownText.destroy();
+            gameStarted = true;
+            startTimer();
+          });
+        });
+
+        socketRef.current.on("timerUpdate", (data) => {
+          gameTime = data.time;
+          timerText.setText(formatTime(gameTime));
+        });
+
+        socketRef.current.on("gameEnded", (data) => {
+          endGame(data.score1, data.score2);
+        });
+
         socketRef.current.on("opponentMove", (data) => {
           const opponent = playerNumberRef.current === 1 ? player2 : player1;
-          if (opponent && opponent.body) {
+          if (opponent && opponent.body && !gameOver) {
             opponent.x = data.x;
             opponent.y = data.y;
             opponent.body.setVelocity(data.vx, data.vy);
@@ -225,7 +282,7 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
         });
 
         socketRef.current.on("ballSync", (data) => {
-          if (ball && ball.body) {
+          if (ball && ball.body && !gameOver) {
             ball.x = data.x;
             ball.y = data.y;
             ball.body.setVelocity(data.vx, data.vy);
@@ -236,23 +293,120 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
           score1 = data.score1;
           score2 = data.score2;
           updateScoreText();
-          resetPositions();
+          if (!gameOver) resetPositions();
+        });
+      }
+
+      function startTimer() {
+        if (playerNumberRef.current === 1) {
+          timerEvent = scene.time.addEvent({
+            delay: 1000,
+            repeat: gameTime - 1,
+            callback: () => {
+              gameTime--;
+              socketRef.current.emit("timerTick", { code_room, time: gameTime });
+              
+              if (gameTime <= 0) {
+                socketRef.current.emit("endGame", { code_room, score1, score2 });
+              }
+            }
+          });
+        }
+      }
+
+      function endGame(finalScore1, finalScore2) {
+        gameOver = true;
+        gameStarted = false;
+
+        // Detener todo
+        player1.body.setVelocity(0, 0);
+        player2.body.setVelocity(0, 0);
+        ball.body.setVelocity(0, 0);
+
+        // Overlay oscuro
+        const overlay = scene.add.rectangle(640, 360, 1280, 720, 0x000000, 0.8);
+        overlay.setDepth(50);
+
+        // Título
+        const titleText = scene.add.text(640, 200, "GAME OVER", {
+          fontSize: "72px",
+          fill: "#ffff00",
+          fontFamily: "Arial",
+          stroke: "#000000",
+          strokeThickness: 6,
+        }).setOrigin(0.5).setDepth(51);
+
+        // Score final
+        const finalScoreText = scene.add.text(640, 300, `${finalScore1} - ${finalScore2}`, {
+          fontSize: "64px",
+          fill: "#ffffff",
+          fontFamily: "Arial",
+          stroke: "#000000",
+          strokeThickness: 5,
+        }).setOrigin(0.5).setDepth(51);
+
+        // Ganador
+        let winnerMsg = "EMPATE!";
+        let winnerColor = "#ffffff";
+        if (finalScore1 > finalScore2) {
+          winnerMsg = "¡ROJO GANA!";
+          winnerColor = "#ff0000";
+        } else if (finalScore2 > finalScore1) {
+          winnerMsg = "¡AZUL GANA!";
+          winnerColor = "#0000ff";
+        }
+
+        const winnerText = scene.add.text(640, 400, winnerMsg, {
+          fontSize: "56px",
+          fill: winnerColor,
+          fontFamily: "Arial",
+          stroke: "#000000",
+          strokeThickness: 5,
+        }).setOrigin(0.5).setDepth(51);
+
+        // Botón volver al lobby
+        const buttonBg = scene.add.rectangle(640, 520, 300, 70, 0x4CAF50);
+        buttonBg.setDepth(51);
+        buttonBg.setInteractive({ useHandCursor: true });
+
+        const buttonText = scene.add.text(640, 520, "Volver al Lobby", {
+          fontSize: "32px",
+          fill: "#ffffff",
+          fontFamily: "Arial",
+        }).setOrigin(0.5).setDepth(52);
+
+        buttonBg.on('pointerover', () => {
+          buttonBg.setFillStyle(0x66BB6A);
+        });
+
+        buttonBg.on('pointerout', () => {
+          buttonBg.setFillStyle(0x4CAF50);
+        });
+
+        buttonBg.on('pointerdown', () => {
+          // Actualizar estado de la sala en BD
+          if (socketRef.current) {
+            socketRef.current.emit("leaveGame", { code_room });
+          }
+          window.location.href = "/Kabegol/Home";
         });
       }
 
       function handleBallHit(player, ball) {
-        // Aplicar fuerza adicional al golpear
+        if (!gameStarted || gameOver) return;
+        
         const angle = Phaser.Math.Angle.Between(player.x, player.y, ball.x, ball.y);
         const force = 300;
         ball.body.setVelocity(
           Math.cos(angle) * force,
-          Math.sin(angle) * force - 100 // Impulso hacia arriba
+          Math.sin(angle) * force - 100
         );
       }
 
       function goalScored(scoringPlayer) {
+        if (!gameStarted || gameOver) return;
+        
         if (socketRef.current && playerNumberRef.current === 1) {
-          // Solo el host actualiza los goles
           if (scoringPlayer === 1) score1++;
           else score2++;
 
@@ -284,15 +438,19 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
     function update(time) {
       const scene = this;
 
-      // Rotar la pelota según su velocidad
+      if (!gameStarted || gameOver) return;
+
+      // Rotar pelota
       if (ball && ball.body) {
         const velocityMagnitude = Math.sqrt(
           ball.body.velocity.x ** 2 + ball.body.velocity.y ** 2
         );
-        ball.angle += velocityMagnitude * 0.05;
+        if (velocityMagnitude > 10) {
+          ball.angle += velocityMagnitude * 0.03;
+        }
       }
 
-      // Movimiento del jugador controlado
+      // Movimiento
       const myPlayer = playerNumberRef.current === 1 ? player1 : player2;
       const useWASD = playerNumberRef.current === 1;
 
@@ -300,7 +458,6 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
         const speed = 200;
         const jumpPower = -400;
 
-        // Movimiento horizontal
         if (useWASD) {
           if (keys.a.isDown) {
             myPlayer.body.setVelocityX(-speed);
@@ -310,7 +467,6 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
             myPlayer.body.setVelocityX(0);
           }
 
-          // Salto
           if (keys.w.isDown && myPlayer.body.touching.down) {
             myPlayer.body.setVelocityY(jumpPower);
           }
@@ -323,13 +479,11 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
             myPlayer.body.setVelocityX(0);
           }
 
-          // Salto
           if (cursors.up.isDown && myPlayer.body.touching.down) {
             myPlayer.body.setVelocityY(jumpPower);
           }
         }
 
-        // Emitir posición al servidor
         if (socketRef.current) {
           socketRef.current.emit("playerMove", {
             code_room,
@@ -342,7 +496,7 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
         }
       }
 
-      // Solo el host actualiza la pelota
+      // Actualizar pelota (solo host)
       if (ball && ball.body && playerNumberRef.current === 1) {
         if (time - lastBallUpdate > BALL_UPDATE_RATE) {
           lastBallUpdate = time;
@@ -365,6 +519,10 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
         socketRef.current.off("opponentMove");
         socketRef.current.off("ballSync");
         socketRef.current.off("goalScored");
+        socketRef.current.off("updateCountdown");
+        socketRef.current.off("startGameTimer");
+        socketRef.current.off("timerUpdate");
+        socketRef.current.off("gameEnded");
       }
       game.destroy(true);
       gameRef.current = null;

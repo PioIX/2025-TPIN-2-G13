@@ -487,6 +487,43 @@ io.on("connection", (socket) => {
         // await realizarQuery(`UPDATE RoomPlayers SET score = ${score1} WHERE ...`);
     });
 
+
+    socket.on("updateCountdown", (data) => {
+        io.to(data.code_room).emit("updateCountdown", { countdown: data.countdown });
+    });
+
+    socket.on("startGameTimer", (data) => {
+        io.to(data.code_room).emit("startGameTimer");
+    });
+
+    socket.on("timerTick", (data) => {
+        io.to(data.code_room).emit("timerUpdate", { time: data.time });
+    });
+
+    socket.on("endGame", async (data) => {
+        const { code_room, score1, score2 } = data;
+        
+        console.log(`🏁 Juego terminado en sala ${code_room}. Score: ${score1} - ${score2}`);
+        
+        // Actualizar estado de la sala a "finalizada"
+        await realizarQuery(`
+            UPDATE Rooms 
+            SET estado = 'finalizada', fecha_fin = NOW() 
+            WHERE code_room = '${code_room}'
+        `);
+        
+        // Broadcast a todos
+        io.to(code_room).emit("gameEnded", { score1, score2 });
+    });
+
+    socket.on("leaveGame", async (data) => {
+        const { code_room } = data;
+        console.log(`👋 Jugador salió de la sala ${code_room}`);
+        
+        // Opcional: limpiar sala
+        socket.leave(code_room);
+    });
+
     socket.on("pingAll", (data) => {
         console.log("PING ALL: ", data);
         io.emit("pingAll", { event: "Ping to all", message: data });

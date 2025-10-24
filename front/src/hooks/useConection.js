@@ -1,5 +1,5 @@
  const useConection = () =>{
-    const ip = "http://10.1.4.85" 
+    const ip = "http://localhost" 
     const port = "4006"
 
     const url = ip + ":" + port
