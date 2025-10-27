@@ -21,6 +21,7 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
 
     // Variables globales para la escena
     let player1, player2, ball;
+    let boot1, boot2; // 🦵 Botines
     let cursors, keys;
     let score1 = 0, score2 = 0;
     let scoreText, timerText, countdownText;
@@ -30,7 +31,7 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
     const BALL_UPDATE_RATE = 50;
     
     // ⏱️ Variables del timer
-    let gameTime = 60; // 3 minutos en segundos
+    let gameTime = 60;
     let gameStarted = false;
     let gameOver = false;
     let countdown = 3;
@@ -43,7 +44,7 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
       physics: {
         default: "arcade",
         arcade: {
-          gravity: { y: 800 },
+          gravity: { y: 600 },
           debug: false,
         },
       },
@@ -65,6 +66,37 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
     function preload() {
       this.load.image("background", "/backgrounds/estadio1.png");
       this.load.image("arco", "/backgrounds/arcoNormal.png");
+    }
+
+    // Crear textura de botín
+    function createBoot(scene, color) {
+      const graphics = scene.make.graphics({ x: 0, y: 0, add: false });
+      
+      // Forma de botín simplificada
+      graphics.fillStyle(color, 1);
+      
+      // Suela
+      graphics.fillRect(0, 20, 25, 8);
+      
+      // Parte superior del botín
+      graphics.beginPath();
+      graphics.moveTo(5, 20);
+      graphics.lineTo(5, 8);
+      graphics.lineTo(20, 5);
+      graphics.lineTo(25, 10);
+      graphics.lineTo(25, 20);
+      graphics.closePath();
+      graphics.fillPath();
+      
+      // Cordones (blanco)
+      graphics.fillStyle(0xffffff, 1);
+      graphics.fillRect(8, 10, 2, 8);
+      graphics.fillRect(12, 10, 2, 8);
+      graphics.fillRect(16, 10, 2, 8);
+      
+      const key = color === 0xff0000 ? 'boot_red' : 'boot_blue';
+      graphics.generateTexture(key, 25, 28);
+      graphics.destroy();
     }
 
     function createSoccerBall(scene) {
@@ -141,6 +173,8 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
       bg.setDisplaySize(1280, 720);
 
       createSoccerBall(scene);
+      createBoot(scene, 0xff0000); // Botín rojo
+      createBoot(scene, 0x0000ff); // Botín azul
 
       // Suelo
       ground = scene.add.rectangle(640, 643, 1280, 10, 0x000000, 0);
@@ -160,38 +194,70 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
       goalLeft = scene.add.rectangle(20, 590, 40, 160, 0xff0000, 0);
       goalRight = scene.add.rectangle(1260, 590, 40, 160, 0x0000ff, 0);
       scene.physics.add.existing(goalLeft, true);
-      scene.physics.add.existing(goalRight, true);  
+      scene.physics.add.existing(goalRight, true);
 
-      // Jugadores
+      // 🦵 Jugador 1 + Botín (SIEMPRE VISIBLE)
       player1 = scene.add.circle(200, 500, 30, 0xff0000);
       player1.setDepth(1);
       scene.physics.add.existing(player1);
       player1.body.setCollideWorldBounds(true);
-      player1.body.setBounce(0.2);
+      player1.body.setBounce(0.3);
       player1.body.setCircle(30);
+      player1.body.setMass(1.2);
 
+      boot1 = scene.add.sprite(200, 525, 'boot_red');
+      boot1.setDepth(2); // ✅ Por encima de todo
+      boot1.setOrigin(0.5, 0.2);
+      boot1.setVisible(true);
+      scene.physics.add.existing(boot1);
+
+      boot1.body.setAllowGravity(false);
+      boot1.body.setSize(30, 20);
+      boot1.body.setOffset(-2, 8);
+      boot1.isKicking = false;
+      boot1.kickCooldown = 0;
+
+      // 🦵 Jugador 2 + Botín (SIEMPRE VISIBLE)
       player2 = scene.add.circle(1080, 500, 30, 0x0000ff);
       player2.setDepth(1);
       scene.physics.add.existing(player2);
       player2.body.setCollideWorldBounds(true);
-      player2.body.setBounce(0.2);
+      player2.body.setBounce(0.3);
       player2.body.setCircle(30);
+      player2.body.setMass(1.2);
+
+      boot2 = scene.add.sprite(1080, 525, 'boot_blue');
+      boot2.setDepth(2); // ✅ Por encima de todo
+      boot2.setOrigin(0.5, 0.2);
+      boot2.setVisible(true);
+      boot2.setFlipX(true);
+      scene.physics.add.existing(boot2);
+
+      boot2.body.setAllowGravity(false);
+      boot2.body.setSize(30, 20);
+      boot2.body.setOffset(-2, 8);
+      boot2.isKicking = false;
+      boot2.kickCooldown = 0;
 
       // Pelota
       ball = scene.add.sprite(640, 300, 'soccerball');
       ball.setDepth(1);
       scene.physics.add.existing(ball);
       ball.body.setCollideWorldBounds(true);
-      ball.body.setBounce(0.8);
+      ball.body.setBounce(0.7);
       ball.body.setCircle(15);
+      ball.body.setMass(0.4);
+      ball.body.setDrag(50, 0);
 
       // Colisiones
       scene.physics.add.collider(player1, ground);
       scene.physics.add.collider(player2, ground);
-      scene.physics.add.collider(ball, ground);
+      scene.physics.add.collider(ball, ground, ballGroundCollision);
       scene.physics.add.collider(player1, player2);
-      scene.physics.add.collider(player1, ball, handleBallHit);
-      scene.physics.add.collider(player2, ball, handleBallHit);
+      
+      // 🦵 Colisión botines con pelota
+      scene.physics.add.overlap(boot1, ball, (boot, ball) => kickBall(boot, ball, player1));
+      scene.physics.add.overlap(boot2, ball, (boot, ball) => kickBall(boot, ball, player2));
 
       scene.physics.add.overlap(ball, goalLeft, () => goalScored(2), null, scene);
       scene.physics.add.overlap(ball, goalRight, () => goalScored(1), null, scene);
@@ -205,7 +271,6 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
         strokeThickness: 4,
       }).setOrigin(0.5).setDepth(10);
 
-      // ⏱️ Timer
       timerText = scene.add.text(640, 90, formatTime(gameTime), {
         fontSize: "36px",
         fill: "#ffff00",
@@ -214,7 +279,6 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
         strokeThickness: 3,
       }).setOrigin(0.5).setDepth(10);
 
-      // 🎬 Cuenta regresiva inicial
       countdownText = scene.add.text(640, 360, countdown.toString(), {
         fontSize: "120px",
         fill: "#ffffff",
@@ -231,7 +295,6 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
         d: Phaser.Input.Keyboard.KeyCodes.D,
       });
 
-      // 🎬 Iniciar cuenta regresiva (solo el host)
       if (playerNumberRef.current === 1) {
         scene.time.addEvent({
           delay: 1000,
@@ -274,10 +337,18 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
 
         socketRef.current.on("opponentMove", (data) => {
           const opponent = playerNumberRef.current === 1 ? player2 : player1;
+          const opponentBoot = playerNumberRef.current === 1 ? boot2 : boot1;
+          
           if (opponent && opponent.body && !gameOver) {
             opponent.x = data.x;
             opponent.y = data.y;
             opponent.body.setVelocity(data.vx, data.vy);
+            
+            // 🦵 Sincronizar botín (siempre visible y por encima)
+            opponentBoot.x = data.bootX;
+            opponentBoot.y = data.bootY;
+            opponentBoot.rotation = data.bootRotation;
+            opponentBoot.setDepth(2); // Asegurar que se vea
           }
         });
 
@@ -295,6 +366,117 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
           updateScoreText();
           if (!gameOver) resetPositions();
         });
+
+        socketRef.current.on("kickEffect", (data) => {
+          createKickEffect(scene, data.x, data.y);
+          
+          // Animar el botín del otro jugador
+          if (data.playerNum !== playerNumberRef.current) {
+            const opponentBoot = data.playerNum === 1 ? boot1 : boot2;
+            const kickDirection = opponentBoot.flipX ? 1 : -1;
+            
+            scene.tweens.add({
+              targets: opponentBoot,
+              rotation: kickDirection * 1.2,
+              duration: 80,
+              yoyo: true,
+              ease: 'Power2'
+            });
+          }
+        });
+      }
+
+      function ballGroundCollision(ball, ground) {
+        if (ball.body.touching.down) {
+          ball.body.velocity.x *= 0.85;
+          
+          if (Math.abs(ball.body.velocity.x) < 10) {
+            ball.body.velocity.x = 0;
+          }
+        }
+      }
+
+      // 🦵 Sistema de patada mejorado con ANIMACIÓN
+      function kickBall(boot, ball, player) {
+        if (!gameStarted || gameOver) return;
+        if (boot.isKicking || boot.kickCooldown > 0) return;
+        
+        // 🎬 Iniciar animación de patada
+        boot.isKicking = true;
+        boot.kickCooldown = 15; // frames de cooldown
+        
+        // Calcular dirección del golpe
+        const angle = Phaser.Math.Angle.Between(boot.x, boot.y, ball.x, ball.y);
+        
+        // 🔥 Calcular fuerza basada en velocidad del jugador
+        const playerSpeed = Math.sqrt(
+          player.body.velocity.x ** 2 + 
+          player.body.velocity.y ** 2
+        );
+        
+        // Fuerza base + bonus por velocidad
+        const baseForce = 400;
+        const speedBonus = playerSpeed * 1.2;
+        const totalForce = baseForce + speedBonus;
+        
+        // 🎯 Dirección del golpe
+        let kickAngle = angle;
+        
+        // Ajustar ángulo según movimiento vertical
+        if (player.body.velocity.y > 100) {
+          kickAngle += 0.3;
+        } else if (player.body.velocity.y < -100) {
+          kickAngle -= 0.5;
+        }
+        
+        // 💥 Aplicar velocidad a la pelota
+        const kickVelocityX = Math.cos(kickAngle) * totalForce;
+        const kickVelocityY = Math.sin(kickAngle) * totalForce;
+        
+        ball.body.setVelocity(kickVelocityX, kickVelocityY);
+        
+        // 🎬 Animación del botín (rotación tipo Soccer Heads)
+        const isFlipped = boot.flipX;
+        const kickDirection = isFlipped ? 1 : -1;
+        
+        scene.tweens.add({
+          targets: boot,
+          rotation: kickDirection * 1.2, // Rotación de patada
+          duration: 80,
+          yoyo: true,
+          ease: 'Power2',
+          onComplete: () => {
+            boot.isKicking = false;
+          }
+        });
+        
+        // Efecto visual
+        createKickEffect(scene, ball.x, ball.y);
+        
+        // Emitir al otro jugador
+        if (socketRef.current) {
+          socketRef.current.emit("kickEffect", {
+            code_room,
+            x: ball.x,
+            y: ball.y,
+            playerNum: playerNumberRef.current
+          });
+        }
+        
+        console.log(`⚽ Patada! Fuerza: ${Math.round(totalForce)}`);
+      }
+
+      function createKickEffect(scene, x, y) {
+        // Partículas de impacto
+        const particles = scene.add.particles(x, y, 'soccerball', {
+          speed: { min: 50, max: 150 },
+          scale: { start: 0.3, end: 0 },
+          lifespan: 300,
+          quantity: 8,
+          blendMode: 'ADD'
+        });
+        
+        scene.time.delayedCall(300, () => particles.destroy());
       }
 
       function startTimer() {
@@ -318,16 +500,15 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
         gameOver = true;
         gameStarted = false;
 
-        // Detener todo
         player1.body.setVelocity(0, 0);
         player2.body.setVelocity(0, 0);
         ball.body.setVelocity(0, 0);
+        boot1.rotation = 0;
+        boot2.rotation = 0;
 
-        // Overlay oscuro
         const overlay = scene.add.rectangle(640, 360, 1280, 720, 0x000000, 0.8);
         overlay.setDepth(50);
 
-        // Título
         const titleText = scene.add.text(640, 200, "GAME OVER", {
           fontSize: "72px",
           fill: "#ffff00",
@@ -336,7 +517,6 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
           strokeThickness: 6,
         }).setOrigin(0.5).setDepth(51);
 
-        // Score final
         const finalScoreText = scene.add.text(640, 300, `${finalScore1} - ${finalScore2}`, {
           fontSize: "64px",
           fill: "#ffffff",
@@ -345,7 +525,6 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
           strokeThickness: 5,
         }).setOrigin(0.5).setDepth(51);
 
-        // Ganador
         let winnerMsg = "EMPATE!";
         let winnerColor = "#ffffff";
         if (finalScore1 > finalScore2) {
@@ -364,7 +543,6 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
           strokeThickness: 5,
         }).setOrigin(0.5).setDepth(51);
 
-        // Botón volver al lobby
         const buttonBg = scene.add.rectangle(640, 520, 300, 70, 0x4CAF50);
         buttonBg.setDepth(51);
         buttonBg.setInteractive({ useHandCursor: true });
@@ -384,23 +562,11 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
         });
 
         buttonBg.on('pointerdown', () => {
-          // Actualizar estado de la sala en BD
           if (socketRef.current) {
             socketRef.current.emit("leaveGame", { code_room });
           }
           window.location.href = "/Kabegol/Home";
         });
-      }
-
-      function handleBallHit(player, ball) {
-        if (!gameStarted || gameOver) return;
-        
-        const angle = Phaser.Math.Angle.Between(player.x, player.y, ball.x, ball.y);
-        const force = 300;
-        ball.body.setVelocity(
-          Math.cos(angle) * force,
-          Math.sin(angle) * force - 100
-        );
       }
 
       function goalScored(scoringPlayer) {
@@ -432,6 +598,8 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
         player2.body.setVelocity(0, 0);
         ball.setPosition(640, 300);
         ball.body.setVelocity(0, 0);
+        boot1.rotation = 0;
+        boot2.rotation = 0;
       }
     }
 
@@ -452,17 +620,21 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
 
       // Movimiento
       const myPlayer = playerNumberRef.current === 1 ? player1 : player2;
+      const myBoot = playerNumberRef.current === 1 ? boot1 : boot2;
       const useWASD = playerNumberRef.current === 1;
 
       if (myPlayer && myPlayer.body) {
-        const speed = 200;
-        const jumpPower = -400;
+        const speed = 250;
+        const jumpPower = -450;
+        let isMoving = false;
 
         if (useWASD) {
           if (keys.a.isDown) {
             myPlayer.body.setVelocityX(-speed);
+            isMoving = true;
           } else if (keys.d.isDown) {
             myPlayer.body.setVelocityX(speed);
+            isMoving = true;
           } else {
             myPlayer.body.setVelocityX(0);
           }
@@ -473,8 +645,10 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
         } else {
           if (cursors.left.isDown) {
             myPlayer.body.setVelocityX(-speed);
+            isMoving = true;
           } else if (cursors.right.isDown) {
             myPlayer.body.setVelocityX(speed);
+            isMoving = true;
           } else {
             myPlayer.body.setVelocityX(0);
           }
@@ -484,6 +658,23 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
           }
         }
 
+        // 🦵 Botín SIEMPRE cerca del jugador (casi pegado)
+        myBoot.x = myPlayer.x;
+        myBoot.y = myPlayer.y + 26; // Solo 26px debajo (casi pegado al círculo)
+        
+        // Cooldown del botín
+        if (myBoot.kickCooldown > 0) {
+          myBoot.kickCooldown--;
+        }
+        
+        // Voltear botín según dirección
+        if (myPlayer.body.velocity.x > 10) {
+          myBoot.setFlipX(false);
+        } else if (myPlayer.body.velocity.x < -10) {
+          myBoot.setFlipX(true);
+        }
+
+        // Emitir posición al servidor
         if (socketRef.current) {
           socketRef.current.emit("playerMove", {
             code_room,
@@ -492,6 +683,9 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
             y: myPlayer.y,
             vx: myPlayer.body.velocity.x,
             vy: myPlayer.body.velocity.y,
+            bootX: myBoot.x,
+            bootY: myBoot.y,
+            bootRotation: myBoot.rotation,
           });
         }
       }
@@ -523,6 +717,7 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
         socketRef.current.off("startGameTimer");
         socketRef.current.off("timerUpdate");
         socketRef.current.off("gameEnded");
+        socketRef.current.off("kickEffect");
       }
       game.destroy(true);
       gameRef.current = null;
