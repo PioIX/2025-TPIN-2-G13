@@ -444,34 +444,96 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
         });
       }
 
-      function performKick(player, ball, force = 500) {
+      function performKick(player, ball, force = 700) { // 🔥 Aumentado de 500 a 700
         if (!gameStarted || gameOver) return;
         
-        // Calcular distancia entre jugador y pelota
         const distance = Phaser.Math.Distance.Between(player.x, player.y, ball.x, ball.y);
         
         // Solo patear si está cerca
         if (distance < 80) {
-          const angle = Phaser.Math.Angle.Between(player.x, player.y, ball.x, ball.y);
-          const extraForce = player.body.velocity.y > 0 ? 1.3 : 1;
+          // 🎯 Calcular dirección horizontal (izquierda o derecha)
+          const horizontalDirection = ball.x > player.x ? 1 : -1;
           
-          ball.body.setVelocity(
-            Math.cos(angle) * force * extraForce,
-            Math.sin(angle) * force * extraForce - 150
+          // 🔥 Calcular fuerza basada en velocidad del jugador
+          const playerSpeed = Math.sqrt(
+            player.body.velocity.x ** 2 + 
+            player.body.velocity.y ** 2
           );
+          
+          const speedBonus = playerSpeed * 0.7; // 🔥 Aumentado de 0.5 a 0.7
+          const totalForce = force + speedBonus;
+          
+          // 🎯 Componentes de velocidad con ARCO ALTO
+          // Horizontal: 60% de la fuerza (menos horizontal = más arco)
+          let kickVelocityX = horizontalDirection * totalForce * 0.6; // 🔥 Reducido de 0.7 a 0.6
+          
+          // Vertical: SIEMPRE hacia arriba (100% de la fuerza = ARCO ALTO)
+          let kickVelocityY = -totalForce * 1.0; // 🔥 Aumentado de 0.85 a 1.0
+          
+          // 💥 Modificadores especiales
+          
+          // Si está corriendo rápido, patada más plana pero potente
+          if (Math.abs(player.body.velocity.x) > 150) {
+            kickVelocityX *= 1.4; // 🔥 Más horizontal
+            kickVelocityY *= 0.75; // Menos arco pero más potente
+          }
+          
+          // Si está cayendo rápido, remate hacia abajo
+          if (player.body.velocity.y > 200) {
+            kickVelocityY = totalForce * 0.4; // Patea hacia abajo
+            kickVelocityX *= 1.2; // Más potencia horizontal
+          }
+          
+          // Si está subiendo, chilena (arco EXAGERADO)
+          if (player.body.velocity.y < -100) {
+            kickVelocityY *= 1.6; // 🔥 MUCHO más hacia arriba
+            kickVelocityX *= 0.5; // Menos horizontal
+          }
+          
+          // 💥 Aplicar velocidad
+          ball.body.setVelocity(kickVelocityX, kickVelocityY);
+          
+          console.log(`⚽ PATADA! Fuerza: ${Math.round(totalForce)} | X: ${Math.round(kickVelocityX)}, Y: ${Math.round(kickVelocityY)}`);
         }
       }
 
       function handleBallHit(player, ball) {
+        // if (!gameStarted || gameOver) return;
+        
+        // // 🎯 Dirección horizontal
+        // const horizontalDirection = ball.x > player.x ? 1 : -1;
+        
+        // const force = 400;
+        
+        // // Velocidad del jugador
+        // const playerSpeed = Math.sqrt(
+        //   player.body.velocity.x ** 2 + 
+        //   player.body.velocity.y ** 2
+        // );
+        
+        // const speedBonus = playerSpeed * 0.5;
+        // const totalForce = force + speedBonus;
+        
+        // // 🎯 Componentes con ARCO
+        // let hitVelocityX = horizontalDirection * totalForce * 0.7;
+        // let hitVelocityY = -totalForce * 0.8; // Siempre hacia arriba
+        
+        // // Si está cayendo, golpe más fuerte hacia abajo
+        // if (player.body.velocity.y > 150) {
+        //   hitVelocityX *= 1.2;
+        //   hitVelocityY *= 0.6; // Menos arco
+        // }
+        
+        // ball.body.setVelocity(hitVelocityX, hitVelocityY);
+
         if (!gameStarted || gameOver) return;
         
-        const angle = Phaser.Math.Angle.Between(player.x, player.y, ball.x, ball.y);
-        const force = 400;
-        const extraForce = player.body.velocity.y > 0 ? 1.3 : 1;
+        // Empuje MUY suave de la cabeza (para diferenciarlo de la patada)
+        const horizontalDirection = ball.x > player.x ? 1 : -1;
         
         ball.body.setVelocity(
-          Math.cos(angle) * force * extraForce,
-          Math.sin(angle) * force * extraForce - 150
+          horizontalDirection * 150, // Empuje suave horizontal
+          -100 // Empuje suave hacia arriba
         );
       }
 
@@ -587,13 +649,13 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
           // 👟 TECLA R - Patada Jugador 1
           if (Phaser.Input.Keyboard.JustDown(keys.r)) {
             animateKick(myBoot, this);
-            performKick(myPlayer, ball, 500);
+            performKick(myPlayer, ball, 700); // 🔥 Cambiar de 500 a 700
             
             if (socketRef.current) {
               socketRef.current.emit("kick", {
                 code_room,
                 playerNumber: 1,
-                force: 500
+                force: 700 // 🔥 Cambiar de 500 a 700
               });
             }
           }
@@ -613,13 +675,13 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
           // 👟 TECLA P - Patada Jugador 2
           if (Phaser.Input.Keyboard.JustDown(keys.p)) {
             animateKick(myBoot, this);
-            performKick(myPlayer, ball, 500);
+            performKick(myPlayer, ball, 700); // 🔥 Cambiar de 500 a 700
             
             if (socketRef.current) {
               socketRef.current.emit("kick", {
                 code_room,
                 playerNumber: 2,
-                force: 500
+                force: 700 // 🔥 Cambiar de 500 a 700
               });
             }
           }
