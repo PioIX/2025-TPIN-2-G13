@@ -30,6 +30,7 @@ app.use(cors({
         "http://10.1.4.85:3000",
         "http://10.1.5.89:3000",
         "http://10.1.5.90:3000",
+        "http://192.168.0.175:3000",
     ],
     credentials: true
 }));
@@ -55,6 +56,7 @@ const io = require("socket.io")(server, {
         "http://10.1.4.85:3000",
         "http://10.1.5.89:3000",
         "http://10.1.5.90:3000",
+        "http://192.168.0.175:3000",
         ],
         methods: ["GET", "POST", "PUT", "DELETE"],
         credentials: true,
@@ -476,6 +478,13 @@ io.on("connection", (socket) => {
         });
     });
 
+    socket.on("kick", (data) => {
+        socket.to(data.code_room).emit("playerKick", {
+            playerNumber: data.playerNumber,
+            force: data.force
+        });
+});
+
     socket.on("goal", async (data) => {
         const { code_room, score1, score2 } = data;
         
@@ -527,6 +536,9 @@ io.on("connection", (socket) => {
         // Opcional: limpiar sala
         socket.leave(code_room);
     });
+
+
+
 
     socket.on("pingAll", (data) => {
         console.log("PING ALL: ", data);
