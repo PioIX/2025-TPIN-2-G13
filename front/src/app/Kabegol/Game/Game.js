@@ -44,7 +44,7 @@ export default function Game({ socket, code_room, playerNumber, userId }) {
       physics: {
         default: "arcade",
         arcade: {
-          gravity: { y: 600 },
+          gravity: { y: 750 },
           debug: false,
         },
       },
