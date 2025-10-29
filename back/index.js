@@ -32,6 +32,8 @@ app.use(cors({
         "http://10.1.5.90:3000",
         "http://192.168.0.175:3000",
         "http://10.1.5.144:3000",
+        "http://10.1.5.88:3000"
+
     ],
     credentials: true
 }));
@@ -59,6 +61,7 @@ const io = require("socket.io")(server, {
         "http://10.1.5.90:3000",
         "http://192.168.0.175:3000",
         "http://10.1.5.144:3000",
+        "http://10.1.5.88:3000"
         ],
         methods: ["GET", "POST", "PUT", "DELETE"],
         credentials: true,
@@ -456,15 +459,16 @@ io.on("connection", (socket) => {
     });
 
     socket.on("playerMove", (data) => {
-        const { code_room, playerNumber, x, y, vx, vy } = data;
-        
-        // Enviar a todos EXCEPTO al que movió
+        const { code_room, playerNumber, x, y, vx, vy, bootX, bootY, bootAngle } = data;
+
+        // Validación liviana opcional
+        if (!code_room) return;
+
         socket.to(code_room).emit("opponentMove", {
             playerNumber,
-            x,
-            y,
-            vx,
-            vy
+            x, y, vx, vy,
+            bootX, bootY,
+            bootAngle
         });
     });
 
