@@ -19,7 +19,7 @@ export default function KabeGolHome() {
   const [jugadores, setJugadores] = useState([]);
   const [inLobby, setInLobby] = useState(false);
   const [roomCode, setRoomCode] = useState(null);
-  
+
   useEffect(() => {
     if (!socket) return;
 
@@ -55,8 +55,8 @@ export default function KabeGolHome() {
 
     socket.on("errorRoom", (msg) => {
       alert("Error: " + msg);
-    }); 
-    
+    });
+
   }
 
   function joinRoom() {
@@ -84,33 +84,33 @@ export default function KabeGolHome() {
   const [isRulesPopupOpen, setRulesPopupOpen] = useState(false);
   const [isCreateRoomOpen, setCreateRoomOpen] = useState(false);
   const [isJoinRoomOpen, setJoinRoomOpen] = useState(false);
-  
+
   const [userLoggued, setUserLoggued] = useState([])
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     fetch(url + "/findUserById", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            id_user: sessionStorage.getItem("userId")
-        })
-    })  
-    .then(response => response.json())
-    .then(result => {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        id_user: sessionStorage.getItem("userId")
+      })
+    })
+      .then(response => response.json())
+      .then(result => {
         setUserLoggued(result); // Guarda el resultado en el estado
         console.log(result);
-    });
+      });
   }, []);
 
   function showCreateRoom() {
     setMultiPopupOpen(false);
     setCreateRoomOpen(true);
   }
-  
+
   function showJoinRoom() {
     setMultiPopupOpen(false);
     setJoinRoomOpen(true);
@@ -137,190 +137,197 @@ export default function KabeGolHome() {
   if (inLobby) {
     return (
       <>
-      <Lobby
-        code={roomCode}
-        jugadores={jugadores}
-        userId={sessionStorage.getItem("userId")}
-      />
-      <button onClick={() => socket.emit("test", { roomCode })}>Sala</button>
+        <Lobby
+          code={roomCode}
+          jugadores={jugadores}
+          userId={sessionStorage.getItem("userId")}
+        />
+        <button onClick={() => socket.emit("test", { roomCode })}>Sala</button>
       </>
-    ); 
+    );
   } else {
     return (
-    <div className={styles.container}>
-      {/* Fondo cancha animada */}
-      <div className={styles.background}></div>
+      <div className={styles.container}>
+        {/* Fondo cancha animada */}
+        <div className={styles.background}></div>
 
-      {/* Título principal */}
-      <h1 className={styles.title}>KABEGOL</h1>
+        {/* Título principal */}
+        <h1 className={styles.title}>KABEGOL</h1>
 
-      {/* Botones principales */}
-      <div className={styles.buttonsContainer}>
-        <button className={styles.btnSingle} onClick={openSinglePopup}>
-          Un jugador
-        </button>
-        <button className={styles.btnMulti} onClick={openMultiPopup}>
-          Multijugador
-        </button>
-        <button className={styles.btnRules} onClick={openRulesPopup}>
-          Reglas
-        </button>
-      </div>
+        {/* Botones principales */}
+        <div className={styles.buttonsContainer}>
+          <button className={styles.btnSingle} onClick={openSinglePopup}>
+            Un jugador
+          </button>
+          <button className={styles.btnMulti} onClick={openMultiPopup}>
+            Multijugador
+          </button>
+          <button className={styles.btnRules} onClick={openRulesPopup}>
+            Reglas
+          </button>
+        </div>
 
-      {/* Barra lateral */}
-      <div
-        className={`${styles.sidebar} ${
-          sidebarOpen ? styles.sidebarOpen : ""
-        }`}
-        onMouseEnter={() => setSidebarOpen(true)}
-        onMouseLeave={() => setSidebarOpen(false)}
-      >
-        <div className={styles.sidebarContent}>
-          <img
-            src="/profile.jpg"
-            alt="Perfil"
-            className={styles.profilePic}
-          />
+        {/* Barra lateral */}
+        <div
+          className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarOpen : ""
+            }`}
+          onMouseEnter={() => setSidebarOpen(true)}
+          onMouseLeave={() => setSidebarOpen(false)}
+        >
+          <div className={styles.sidebarContent}>
+            <img
+              src="/profile.jpg"
+              alt="Perfil"
+              className={styles.profilePic}
+            />
 
-          {sidebarOpen && (
-            <div className={styles.sidebarExpanded}>
-              <p className={styles.username}>{userLoggued[0].username}</p>
-              <hr className={styles.divider} />
-              <div className={styles.contacts}>
-                
+            {sidebarOpen && (
+              <div className={styles.sidebarExpanded}>
+                <p className={styles.username}>{userLoggued[0].username}</p>
+                <hr className={styles.divider} />
+                <div className={styles.contacts}>
+
+                </div>
               </div>
+            )}
+          </div>
+        </div>
+
+        {/* --- POPUPS --- */}
+
+        {/* Popup Un Jugador */}
+        <Popup
+          open={isSinglePopupOpen}
+          onClose={closeSinglePopup}
+          modal
+          nested
+          closeOnDocumentClick={false}
+        >
+          <div className={styles.modal}>
+            <div className={styles.header}>
+              <h2>Modo Un Jugador</h2>
             </div>
-          )}
-        </div>
+            <div className={styles.content}>
+              <p>Acá podrías configurar el modo un jugador o iniciar el juego.</p>
+            </div>
+            <div className={styles.actions}>
+              <button onClick={closeSinglePopup} className={styles.cancelBtn}>
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </Popup>
+
+        {/* Popup Multijugador */}
+        <Popup
+          open={isMultiPopupOpen}
+          onClose={closeMultiPopup}
+          modal
+          nested
+          closeOnDocumentClick={false}
+        >
+          <div className={styles.modal}>
+            <div className={styles.header}>
+              <h2>Multijugador</h2>
+            </div>
+            <div className={styles.content}>
+              <button onClick={showCreateRoom} className={styles.joinBtn}> Crear una sala </button>
+              <button onClick={showJoinRoom} className={styles.joinBtn}> Unirse a una sala </button>
+            </div>
+            <div className={styles.actions}>
+              <button onClick={closeMultiPopup} className={styles.cancelBtn}>
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </Popup>
+
+        <Popup
+          open={isCreateRoomOpen}
+          onClose={closeCreateRoom}
+          modal
+          nested
+          closeOnDocumentClick={false}
+        >
+          <div className={styles.modal}>
+            <div className={styles.header} >
+              <h2>Crear una Sala</h2>
+            </div>
+            <div className={styles.content}>
+              <p>Aquí puedes configurar y crear una nueva sala de juego.</p>
+            </div>
+            <div className={styles.actions}>
+              <button onClick={createRoom} className={styles.createBtn}>
+                Crear
+              </button>
+              <button onClick={closeCreateRoom} className={styles.cancelBtn}>
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </Popup>
+
+
+        <Popup
+          open={isJoinRoomOpen}
+          onClose={closeJoinRoom}
+          modal
+          nested
+          closeOnDocumentClick={false}
+        >
+          <div className={styles.modal}>
+            <div className={styles.header}>
+              <h2>Unirse a una Sala</h2>
+            </div>
+            <div className={styles.content}>
+              <p>Escribe el código de la sala</p>
+            </div>
+            <Input placeholder="ABC123..." type="text" onChange={(e) => { setCode(e.target.value) }} />
+            <br></br>
+            <br></br>
+            <div className={styles.actions}>
+              <button onClick={joinRoom} className={styles.createBtn}>
+                Unirse
+              </button>
+              <button onClick={closeJoinRoom} className={styles.cancelBtn}>
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </Popup>
+
+
+        {/* Popup Reglas */}
+        <Popup
+          open={isRulesPopupOpen}
+          onClose={closeRulesPopup}
+          modal
+          nested
+          closeOnDocumentClick={false}
+        >
+          <div className={styles.modal}>
+            <div className={styles.header}>
+              <h2>Reglas del Juego</h2>
+            </div>
+            <div className={styles.content}>
+              <ul style={{ lineHeight: 1.6 }}>
+                <li><b>Partido:</b> 60s.</li>
+                <li><b>Gol:</b> la pelota cruza por completo la línea.</li>
+                <li><b>Reinicio:</b> tras gol, cuenta 3…2…1 y a jugar.</li>
+                <li><b>Acciones:</b> moverse, saltar y patear con el botín.</li>
+                <li><b>Pausa:</b> 1 por jugador (10s). Desconexión 15s de gracia.</li>
+                <li><b>Fair play:</b> sin exploits, sin macros.</li>
+              </ul>
+            </div>
+            <div className={styles.actions} style={{ display: "flex", gap: 8 }}>
+              <button onClick={closeRulesPopup} className={styles.cancelBtn}>
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </Popup>
+
       </div>
-
-      {/* --- POPUPS --- */}
-
-      {/* Popup Un Jugador */}
-      <Popup
-        open={isSinglePopupOpen}
-        onClose={closeSinglePopup}
-        modal
-        nested
-        closeOnDocumentClick={false}
-      >
-        <div className={styles.modal}>
-          <div className={styles.header}>
-            <h2>Modo Un Jugador</h2>
-          </div>
-          <div className={styles.content}>
-            <p>Acá podrías configurar el modo un jugador o iniciar el juego.</p>
-          </div>
-          <div className={styles.actions}>
-            <button onClick={closeSinglePopup} className={styles.cancelBtn}>
-              Cerrar
-            </button>
-          </div>
-        </div>
-      </Popup>
-
-      {/* Popup Multijugador */}
-      <Popup
-        open={isMultiPopupOpen}
-        onClose={closeMultiPopup}
-        modal
-        nested
-        closeOnDocumentClick={false}
-      >
-        <div className={styles.modal}>
-          <div className={styles.header}>
-            <h2>Multijugador</h2>
-          </div>
-          <div className={styles.content}>
-            <button onClick={showCreateRoom} className={styles.joinBtn}> Crear una sala </button>
-            <button onClick={showJoinRoom} className={styles.joinBtn}> Unirse a una sala </button>
-          </div>
-          <div className={styles.actions}>
-            <button onClick={closeMultiPopup} className={styles.cancelBtn}>
-              Cerrar
-            </button>
-          </div>
-        </div>
-      </Popup>
-
-      <Popup
-        open={isCreateRoomOpen}
-        onClose={closeCreateRoom}
-        modal
-        nested
-        closeOnDocumentClick={false}
-      >
-        <div className={styles.modal}>
-          <div className={styles.header} >
-            <h2>Crear una Sala</h2>
-          </div>
-          <div className={styles.content}>
-            <p>Aquí puedes configurar y crear una nueva sala de juego.</p>
-          </div>
-          <div className={styles.actions}>
-            <button onClick={createRoom} className={styles.createBtn}>
-              Crear
-            </button>
-            <button onClick={closeCreateRoom} className={styles.cancelBtn}>
-              Cancelar
-            </button>
-          </div>
-        </div>
-      </Popup>
-
-
-      <Popup
-        open={isJoinRoomOpen}
-        onClose={closeJoinRoom}
-        modal
-        nested
-        closeOnDocumentClick={false}
-      >
-        <div className={styles.modal}>
-          <div className={styles.header}>
-            <h2>Unirse a una Sala</h2>
-          </div>
-          <div className={styles.content}>
-            <p>Escribe el código de la sala</p>
-          </div>
-          <Input placeholder="ABC123..." type="text" onChange={(e) => {setCode(e.target.value)}}/>
-          <br></br>
-          <br></br>
-          <div className={styles.actions}>
-            <button onClick={joinRoom} className={styles.createBtn}>
-              Unirse
-            </button>
-            <button onClick={closeJoinRoom} className={styles.cancelBtn}>
-              Cancelar
-            </button>
-          </div>
-        </div>
-      </Popup>
-
-
-      {/* Popup Reglas */}
-      <Popup
-        open={isRulesPopupOpen}
-        onClose={closeRulesPopup}
-        modal
-        nested
-        closeOnDocumentClick={false}
-      >
-        <div className={styles.modal}>
-          <div className={styles.header}>
-            <h2>Reglas del Juego</h2>
-          </div>
-          <div className={styles.content}>
-            
-          </div>
-          <div className={styles.actions}>
-            <button onClick={closeRulesPopup} className={styles.cancelBtn}>
-              Cerrar
-            </button>
-          </div>
-        </div>
-      </Popup>
-    </div>
-  );
+    );
   }
 }
