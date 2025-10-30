@@ -33,7 +33,9 @@ app.use(cors({
         "http://192.168.0.175:3000",
         "http://10.1.5.144:3000",
         "http://10.1.5.88:3000",
-        "http://10.1.4.160:3000"
+        "http://10.1.4.160:3000",
+        "http://10.1.4.168:3000"
+        
 
     ],
     credentials: true
@@ -63,7 +65,9 @@ const io = require("socket.io")(server, {
         "http://192.168.0.175:3000",
         "http://10.1.5.144:3000",
         "http://10.1.5.88:3000",
-        "http://10.1.4.160:3000"
+        "http://10.1.4.160:3000",
+        "http://10.1.4.168:3000"
+
         ],
         methods: ["GET", "POST", "PUT", "DELETE"],
         credentials: true,
