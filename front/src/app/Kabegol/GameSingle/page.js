@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import { useState } from "react";
 
-const GameSingle = dynamic(() => import("./GameSingle"), { ssr: false });
+const GameSingle = dynamic(() => import("./SingleGame"), { ssr: false });
 
 export default function SinglePlayerPage() {
     const userId = typeof window !== 'undefined' ? sessionStorage.getItem("userId") : null;

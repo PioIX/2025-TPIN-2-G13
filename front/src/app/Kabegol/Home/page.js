@@ -80,7 +80,7 @@ export default function KabeGolHome() {
 
   function PlayWithBot() {
     setSinglePopupOpen(false)
-    router.push('/Kabegol/GameSingle')
+    router.push('./GameSingle')
   }
 
 
