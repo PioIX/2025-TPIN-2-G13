@@ -78,6 +78,11 @@ export default function KabeGolHome() {
     });
   }
 
+  function PlayWithBot() {
+    setSinglePopupOpen(false)
+    router.push('/Kabegol/GameSingle')
+  }
+
 
   const [isSinglePopupOpen, setSinglePopupOpen] = useState(false);
   const [isMultiPopupOpen, setMultiPopupOpen] = useState(false);
@@ -176,7 +181,7 @@ export default function KabeGolHome() {
         >
           <div className={styles.sidebarContent}>
             <img
-              src="/profile.jpg"
+              src={userLoggued[0]?.image}
               alt="Perfil"
               className={styles.profilePic}
             />
@@ -208,7 +213,7 @@ export default function KabeGolHome() {
               <h2>Modo Un Jugador</h2>
             </div>
             <div className={styles.content}>
-              <p>Acá podrías configurar el modo un jugador o iniciar el juego.</p>
+              <button onClick={PlayWithBot} className={styles.joinBtn}>Jugar contra Bot</button>
             </div>
             <div className={styles.actions}>
               <button onClick={closeSinglePopup} className={styles.cancelBtn}>
